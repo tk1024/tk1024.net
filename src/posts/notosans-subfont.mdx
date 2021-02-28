@@ -1,0 +1,88 @@
+---
+title:  Node.js で Noto Sans JP のサブセットフォントを作る
+date: "2024-08-24 12:00:00"
+description: 
+tags: [Noto Sans JP]
+featuredImage: 
+---
+
+## 概要
+
+日本語環境で利用するWebフォントとして人気が高い `Noto Sans JP` ですが、いくらWebフォント最適化されていると言えども、そのまま読み込むと結構な容量があります。
+また、CSSの読み込み・解析にも時間がかかるので[CLS](https://web.dev/articles/cls?hl=ja)で注意されることがあります。  
+
+これらの対策としてページ内で利用する文字だけを収録したサブセットフォントを作ることで容量を減らしたいというのがこの記事の目指すところです。
+
+Googleでそのまま `Noto Sans JP のサブセットフォントを作る` と検索すると `サブセットフォントメーカー` を利用する例が見つかりますが、これは Windowsで利用するGUIソフトなので、CI環境に組み込んだりすることが難しいです。
+
+そこで今回は `Node.js で Noto Sans JP のサブセットフォントを作る` ことを試してみたので覚書です。
+
+## フォントを用意する
+
+`Noto Sans JP` はこちらからダウンロードできます。  
+[https://github.com/notofonts/noto-cjk/tree/main/Sans/OTF/Japanese](https://github.com/notofonts/noto-cjk/tree/main/Sans/OTF/Japanese)
+
+
+## サブセットフォントを生成する
+
+`npm install subset-font` で `subset-font` をインストール
+
+次のスクリプトで特定の文字のみ収録したサブセットフォントを `output.woff2` として生成する
+
+
+```javascript
+const subsetFont = require('subset-font');
+const fs = require("fs")
+const path = require("path")
+
+// フォントファイルを読み込む
+const font = fs.readFileSync(path.join(__dirname, "fonts/NotoSansCJKjp-Black.otf"));
+
+// 収録する文字
+const text = 'ABCD 1234 ひらがな 漢字 亜唖 弌丐 俱𠀋 丂𠂉';
+
+const main = async () => {
+  const subsetBuffer = await subsetFont(font, text, {
+    targetFormat: 'woff2',
+  });
+  // サブセットフォントを出力
+  fs.writeFileSync(`output.woff2`, subsetBuffer)
+}
+
+main()
+```
+
+## 生成結果を確認
+
+見た目はこの通り
+
+![](/post/notosans-subfont/result-ss.png)
+
+ネットワークは次の通り
+
+![](/post/notosans-subfont/network-ss.png)
+
+生成したサブセットである `output.woff2` は 8.4kB、Googleフォントは `css` と `font` で 1MB近くあるので、だいぶ削れました。
+
+## Googleフォントの `text` オプショナルについて
+
+Googleフォントはオプショナルで `text` を受け取ることができます。
+
+[フォント リクエストの最適化](https://developers.google.com/fonts/docs/getting_started?hl=ja#optimizing_your_font_requests)
+
+それを考慮する
+
+```bash
+https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap&text=ABCD 1234 ひらがな 漢字 亜唖 弌丐 俱𠀋 丂𠂉
+```
+
+このようなURLになります。
+最後に`&text=ABCD 1234 ひらがな 漢字 亜唖 弌丐 俱𠀋 丂𠂉` がついています。
+
+これで読み込むと次のような結果になります。
+
+![](/post/notosans-subfont/network-ss2.png)
+
+Googleフォントの方も 10kB 程度になりました。  
+
+場合によりどの方法を選ぶべきかは異なると思いますが、単純にサブセットを使いたいのであればこのオプショナルを使うだけで十分そうですね。
