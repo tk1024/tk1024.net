@@ -25,7 +25,7 @@ export const generateStaticParams = async () => {
   }));
 };
 
-const components = { p: (props) => <p className={`my-8`} {...props} /> };
+const components = { p: (props: any) => <p className={`my-8`} {...props} /> };
 
 export default function Post({ params }: Props) {
   const { content, frontMatter } = getSinglePostMetadata(params.slug);
