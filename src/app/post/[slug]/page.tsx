@@ -33,6 +33,7 @@ const components = {
   h2: (props: any) => <h2 className="lg:text-3xl text-2xl mt-16 max-w-3xl" {...props} />,
   h3: (props: any) => <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl" {...props} />,
   a: (props: any) => <a className="text-indigo-700 underline" {...props} />,
+  img: (props: any) => <img className="w-full" {...props} />,
   blockquote: (props: any) => {
     return (
       <blockquote className="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 max-w-3xl">
@@ -45,10 +46,11 @@ const components = {
   },
   code: (props: any) => {
     if (/language-/.test(props.className)) {
+      console.log(49, props.children.replace(/\n+$/, ""))
       return (
         <div className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 w-screen`}>
           <SyntaxHighlighter showLineNumbers={true} style={monokaiSublime}>
-            {props.children}
+            {props.children.replace(/\n+$/, "")}
           </SyntaxHighlighter>
         </div>
       );
