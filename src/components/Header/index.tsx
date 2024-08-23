@@ -4,6 +4,7 @@ import { FaGithub } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
 import { FaTumblr } from "react-icons/fa";
 import { SiQiita } from "react-icons/si";
+import { TiHome } from "react-icons/ti";
 
 const socials = [
   {
@@ -57,6 +58,14 @@ export const Header = () => {
       </ul>
       <div className="text-sm my-7 text-center">
         <p>メモとリンク</p>
+      </div>
+      <div className="my-8 px-4">
+        <hr className="border-indigo-500" />
+      </div>
+      <div>
+        <Link href="/" className="flex justify-center items-center">
+          <TiHome className="mr-2" /> Home
+        </Link>
       </div>
     </header>
   );
