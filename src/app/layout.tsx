@@ -17,11 +17,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${inter.className}`}>
-        <div className="grid grid-cols-[280px_1fr]">
-          <div className="min-h-screen bg-indigo-700">
+        <div className="grid lg:grid-cols-[280px_1fr] md:grid-cols-1">
+          <div className="lg:min-h-screen bg-indigo-700">
             <Header />
           </div>
-          <div className="col-auto p-10 w-full box-border">{children}</div>
+          <div className="col-auto lg:p-10 p-4 w-full box-border">{children}</div>
         </div>
       </body>
     </html>

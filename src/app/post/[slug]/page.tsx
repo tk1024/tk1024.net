@@ -30,29 +30,36 @@ export const generateStaticParams = async () => {
 };
 
 const components = {
-  h2: (props: any) => <h2 className="text-3xl mt-16" {...props} />,
-  h3: (props: any) => <h3 className="text-2xl mt-8" {...props} />,
+  h2: (props: any) => <h2 className="lg:text-3xl text-2xl mt-16 max-w-3xl" {...props} />,
+  h3: (props: any) => <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl" {...props} />,
   a: (props: any) => <a className="text-indigo-700 underline" {...props} />,
   blockquote: (props: any) => {
     return (
-      <blockquote className="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 dark:border-gray-500 dark:bg-gray-800">
+      <blockquote className="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 max-w-3xl">
         {props.children}
       </blockquote>
     );
   },
   p: (props: any) => {
-    return <p className={`my-8`} {...props} />;
+    return <p className={`my-8 max-w-3xl`} {...props} />;
   },
   code: (props: any) => {
     if (/language-/.test(props.className)) {
       return (
-        <SyntaxHighlighter showLineNumbers={true} style={monokaiSublime}>
-          {props.children}
-        </SyntaxHighlighter>
+        <div className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 w-screen`}>
+          <SyntaxHighlighter showLineNumbers={true} style={monokaiSublime}>
+            {props.children}
+          </SyntaxHighlighter>
+        </div>
       );
     }
 
-    return <code className={`inline-block text-indigo-800 rounded-md border px-1 my-0.5 border-indigo-100 bg-indigo-50`} {...props} />;
+    return (
+      <code
+        className={`inline-block text-indigo-800 rounded-md border px-1 my-0.5 border-indigo-100 bg-indigo-50`}
+        {...props}
+      />
+    );
   },
 };
 
@@ -60,10 +67,10 @@ export default function Post({ params }: Props) {
   const { content, frontMatter } = getSinglePostMetadata(params.slug);
 
   return (
-    <div className="max-w-screen-md">
+    <div className="">
       <article>
         <div className="my-6 mb-16">
-          <h1 className="text-4xl leading-snug">{frontMatter.title}</h1>
+          <h1 className="lg:text-4xl text-2xl leading-snug">{frontMatter.title}</h1>
           <div className="my-1 text-gray-600 text-sm">
             Published {frontMatter.date}
           </div>
