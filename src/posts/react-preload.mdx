@@ -1,0 +1,122 @@
+---
+title: Next.jsのSSRでpreloadする
+date: "2024-08-23 12:00:00"
+description: 
+tags: [Next.js, React.js]
+featuredImage: 
+---
+
+## 概要
+
+Next.js v14 では App Router と Page Router の2種類のルーター方式をサポートしています。
+
+App Router と Page Router とでは色々な違いがありますが、今回扱うのがその一つである `preload` です。
+
+## App Router と Page Router の preload の使い方
+
+### Page Router で preload を使う
+
+Page Routerでは `next/head` を利用して出力します。
+
+```tsx
+import Head from "next/head";
+
+export default function HOME() {
+  return (
+    <Head>
+      <link rel="preload" href="/path/to/image.ext" as="image" />
+    </Head>
+  );
+}
+
+```
+
+出力されるHTMLは次のようになります。
+
+```html
+<!-- 略 -->
+ <head>
+<!-- 略 -->
+    <link rel="preload" href="/path/to/image.ext" as="image" />
+<!-- 略 -->
+</head>
+<!-- 略 -->
+```
+
+` <link rel="preload" href="/path/to/image.ext" as="image" />` が出力されています。  
+想定通りの動きです。
+
+### App Router にそのまま移行するとうまくいかない
+
+これをそのまま `App Router` に移すと次のような出力になります。
+
+```html
+<!-- 略 -->
+<head>
+<!-- 略 -->
+<!-- 略 -->
+</head>
+<!-- 略 -->
+```
+
+` <link rel="preload" href="/path/to/image.ext" as="image" />` が出力されなくなりました。
+
+主な原因は `next/head` が `App Router` でサポートされなくなったからです。
+
+> In the `pages` directory, the `next/head` React component is used to manage `<head>` HTML elements such as `title` and `meta` . In the `app` directory, `next/head` is replaced with the new [built-in SEO support](/docs/app/building-your-application/optimizing/metadata).
+
+[Upgrading: App Router Migration | Next.js](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#step-3-migrating-nexthead)
+
+
+つまり、 次のような記述を期待されるようになりました。
+
+```tsx
+import type { Metadata } from 'next'
+ 
+export const metadata: Metadata = {
+  title: 'My Page Title',
+}
+ 
+export default function Page() {
+  return '...'
+}
+```
+
+しかし、`preload` は `Metadata` では扱えませんので別のアプローチが必要です。
+
+### App Router で preload を使う
+
+まず、App Router で preload を扱う方法は用意されていません。
+
+では、どうなったのかというと React.js の preload というAPIを利用するようになっています。  (ちなみにこのAPIはまだカナリア版です)  
+[preload – React](https://ja.react.dev/reference/react-dom/preload)
+
+もう React.js の API の話なので Next.js かどうかは関係ないですが、 先程の Next.js のコードは次のように書き換えられます。
+
+```tsx
+import { preload } from 'react-dom';
+
+export default function HOME() {
+  preload("/path/to/image.ext", {
+    as: "image",
+  });
+
+  return null;
+}
+```
+
+この出力は次のようになります
+
+```html
+<!-- 略 -->
+<head>
+<!-- 略 -->
+    <link rel="preload" href="/path/to/image.ext" as="image" />
+<!-- 略 -->
+</head>
+<!-- 略 -->
+```
+
+ということで、めでたしめでたし。
+
+React.js の API なので Next.js のドキュメントからは発見できないし、まず `next/head` をそのまま `App Router` に移行してもエラーがでないのに出力もされていないという気づき辛いところでした。
