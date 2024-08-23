@@ -31,12 +31,12 @@ const socials = [
 
 export const Header = () => {
   return (
-    <header className="text-white">
+    <header className="text-white my-7">
       <Link href="/">
-        <h1 className="text-2xl text-center my-7 font-bold">tk1024.net</h1>
+        <h1 className="text-2xl text-center font-bold">tk1024.net</h1>
       </Link>
       <div className="w-full flex items-center justify-center mt-7 mb-5">
-        <div className="rounded-full overflow-hidden w-36">
+        <div className="rounded-full overflow-hidden lg:w-36 w-24">
           <Image alt="" width={248} height={248} src={"/icon.jpg"} />
         </div>
       </div>
