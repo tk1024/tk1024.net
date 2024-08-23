@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,8 +22,11 @@ export default function RootLayout({
           <div className="lg:min-h-screen bg-indigo-700">
             <Header />
           </div>
-          <div className="col-auto lg:p-10 p-4 w-full box-border">{children}</div>
+          <div className="col-auto lg:p-10 p-4 w-full box-border">
+            {children}
+          </div>
         </div>
+        <Analytics />
       </body>
     </html>
   );
