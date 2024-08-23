@@ -56,14 +56,20 @@ export const Header = () => {
           </li>
         ))}
       </ul>
-      <div className="text-sm my-7 text-center">
-        <p>メモとリンク</p>
+      <div className="text-xs my-7 px-10 text-center">
+        <p className="mb-1">メモとSNSリンクが載っています</p>
+        <a
+          href="https://github.com/tk1024/tk1024.net"
+          className="flex justify-center items-center my-2"
+        >
+          <FaGithub className="mr-2" /> tk1024 / tk1024.net
+        </a>
       </div>
       <div className="my-8 px-4">
         <hr className="border-indigo-500" />
       </div>
-      <div>
-        <Link href="/" className="flex justify-center items-center">
+      <div className="ml-5">
+        <Link href="/" className="flex items-center my-4">
           <TiHome className="mr-2" /> Home
         </Link>
       </div>
