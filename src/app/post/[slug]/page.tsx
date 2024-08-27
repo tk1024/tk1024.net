@@ -46,7 +46,6 @@ const components = {
   },
   code: (props: any) => {
     if (/language-/.test(props.className)) {
-      console.log(49, props.children.replace(/\n+$/, ""))
       return (
         <div className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 w-screen`}>
           <SyntaxHighlighter showLineNumbers={true} style={monokaiSublime}>
