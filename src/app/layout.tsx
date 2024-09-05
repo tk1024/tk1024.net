@@ -22,7 +22,7 @@ export default function RootLayout({
           <div className="lg:min-h-screen bg-indigo-700">
             <Header />
           </div>
-          <div className="col-auto lg:p-10 p-4 w-full box-border">
+          <div className="col-auto lg:p-10 p-4 w-full box-border overflow-x-auto">
             {children}
           </div>
         </div>
