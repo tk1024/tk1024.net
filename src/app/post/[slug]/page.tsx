@@ -7,12 +7,13 @@ import { monokaiSublime } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import styles from "./style.module.css";
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props0: Props) {
+  const params = await props0.params;
   const props = getSinglePostMetadata(params.slug);
 
   const metadata: Metadata = {
@@ -51,11 +52,11 @@ const components = {
   code: (props: any) => {
     if (/language-/.test(props.className)) {
       return (
-        <div className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 overflow-x-auto`}>
+        (<div className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 overflow-x-auto`}>
           <SyntaxHighlighter showLineNumbers={true} style={monokaiSublime}>
             {props.children.replace(/\n+$/, "")}
           </SyntaxHighlighter>
-        </div>
+        </div>)
       );
     }
 
@@ -68,7 +69,8 @@ const components = {
   },
 };
 
-export default function Post({ params }: Props) {
+export default async function Post(props: Props) {
+  const params = await props.params;
   const { content, frontMatter } = getSinglePostMetadata(params.slug);
 
   return (
