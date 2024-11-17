@@ -45,6 +45,12 @@ const components = {
       </blockquote>
     );
   },
+  ul: (props: any) => {
+    return <ul className="list-disc list-inside py-4" {...props} />
+  },
+  li: (props: any) => {
+    return <li className="my-1" {...props} />
+  },
   p: (props: any) => {
     return <p className={`my-8 max-w-3xl`} {...props} />;
   },
