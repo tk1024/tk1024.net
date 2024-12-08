@@ -1,0 +1,127 @@
+---
+title: eslint-plugin-react-compilerについて
+date: "2024-12-08 22:00:00"
+description: React Compilerによる最適化をサポートするESLintプラグイン「eslint-plugin-react-compiler」について解説
+tags: [React.js, React Compiler, Rules of React, eslint-plugin-react-compiler]
+featuredImage: 
+---
+
+[React Advent Calendar 2024](https://qiita.com/advent-calendar/2024/react) 8日目の記事です。  
+当日に頑張って書いています。
+
+## はじめに
+
+eslint-plugin-react-compiler は、React Compiler がReactコードを最適化する際に期待する Rules of React への違反箇所を、自動的にESLintエラーとして報告してくれるESLintプラグインです。
+
+この記事では React Compiler がなにか、Rules of React とは何か、そして eslint-plugin-react-compiler について順に説明していきます。
+Reactでコードを書いている方は、将来のパフォーマンス最適化を見据えてぜひ参考にしてください。
+
+## React Compilerとは
+
+公式ドキュメント(英): [React Compiler – React](https://react.dev/learn/react-compiler)  
+公式ドキュメント(日): [React Compiler – React](https://ja.react.dev/learn/react-compiler)  
+
+React CompilerはReactチームが開発中の新しいコンパイラで、将来的にはReactコードをビルド時に解析・最適化し、手動でuseMemoやuseCallback、React.memoなどを大量に記述しなくても効果的なメモ化・パフォーマンス改善ができることを目指しています。
+
+また、以下の動画では、Function Outliningという実験的な最適化手法も紹介されています。この手法はコンパイラがコードを自動的に分割し、メモ化しやすい小さな部分に分解することで、より効率的な最適化を可能にします。
+
+8:55辺りから
+<YouTubeEmbed videoId="qd5yk2gxbtg" />
+
+[What's next for the React Compiler? - Sathya Gunasekaran](https://www.youtube.com/watch?v=qd5yk2gxbtg)
+
+なお、Function Outliningは現時点では公式ドキュメントには明記されていない実験的機能ですので、将来的な変更や正式化に留意してください。
+
+このコンパイラは「Rules of React」と呼ばれる特定のルール（フックをトップレベルで呼ぶ、propsやstateを不変的に扱う、レンダー中に副作用を避けるなど）を前提としており、それらが守られているコードを効果的に最適化します。
+
+eslint-plugin-react-compilerは、その Rules of React への適合性を事前にチェックし、コンパイラがスムーズに最適化できる状態を整える助けとなります。
+
+## Rules of React
+
+公式ドキュメント(英): [Rules of React – React](https://react.dev/reference/rules)  
+公式ドキュメント(日): [React のルール – React](https://ja.react.dev/reference/rules)  
+
+Reactアプリケーションを正しく、そして最適に動かすためには、いくつかの原則（Rules of React）を守る必要があります。
+これらのルールは、Reactがコンポーネントやフックを理解し、正しく最適化するための「お約束事」です。
+
+代表的なRules of Reactとしては以下のようなものがあります。
+
+### コンポーネントとフックを純粋に保つ
+レンダリング中に外部の副作用を起こさず、常に同じ入力（props、stateなど）が与えられたときは同じ出力を返すことが期待されます。  
+これにより、Reactはコンポーネントやフックの再利用性や予測可能性を高め、最適化が容易になります。
+
+### コンポーネントやフックを呼び出すのは React 
+コンポーネント関数やフックは、自前で自由に呼び出すのではなく、Reactが必要なタイミングで呼び出します。  
+これによってReactは、レンダーや再レンダーを適切なタイミングで行い、パフォーマンスを最適化できます。
+
+### フックのルール （Rules of Hooks）  
+useStateやuseEffectなどのフックは条件分岐やループの中で呼ばず、常にコンポーネントのトップレベルで同じ順序で呼ぶ必要があります。
+これによってReactはフック呼び出しの状態を正しく管理し、最適化を確実に実行できます。
+
+eslint-plugin-react-compilerは、これらのルール違反を自動で検出し、ESLintとして警告・エラーを出すことで、コード品質を保ちながらReact Compilerの最適化に備えられます。
+
+## eslint-plugin-react-compilerの導入方法
+
+公式ドキュメント(英): [Installing eslint-plugin-react-compiler 
+ – React](https://react.dev/learn/react-compiler#installing-eslint-plugin-react-compiler)  
+公式ドキュメント(日): [eslint-plugin-react-compiler のインストール – React](https://ja.react.dev/learn/react-compiler#installing-eslint-plugin-react-compiler)  
+
+## 具体的にどんな項目がエラーになるのか
+
+以下は`eslint-plugin-react-compiler`で代表的に検出されるルール違反例です。
+
+### `useState`の返り値の直接ミューテーション
+
+```tsx
+function Component(props) {
+  const [value, setValue] = useState({ a: 0 });
+  // Mutating a value returned from 'useState()', which should not be mutated. Use the setter function to update instead. eslint(react-compiler/react-compiler)
+  value.a = 1;
+  return <div>{value.a}</div>;
+}
+```
+
+不変性を前提とするReactでは、このような変更は予期せぬ挙動や最適化阻害を招きます。
+
+### フックルール違反
+- フック（useEffectやuseStateなど）が条件分岐内で呼ばれている
+- react-hooks/rules-of-hooksを無効化・回避している
+
+
+```tsx
+function Component() {
+  if (true) {
+    // React Hook "useEffect" is called conditionally. React Hooks must be called in the exact same order in every component render.(eslintreact-hooks/rules-of-hooks)
+    useEffect(() => {
+      console.log("Hello")
+    }, [])
+  }
+}
+```
+※↑シンタックスハイライトが壊れているには仕様です(なぜかうまく対応できなかった...🤔)
+
+これらはReact Hooksの基本ルールを破り、コンパイラが安全な最適化を行えなくします。
+
+### propsやHookの返り値の破壊的変更
+
+```tsx
+function Component(props) {
+  // Mutating component props or hook arguments is not allowed. Consider using a local variable insteadeslint(react-compiler/react-compiler)
+  props.foo = 10;
+  return <div>{props.foo}</div>;
+}
+```
+
+不変データ原則を破り、React Compilerが期待する前提条件を崩します。
+
+### "use no memo"ディレクティブの不適切な使用
+コンパイラ最適化を無効化する指示が不必要または誤った場所に書かれている場合、警告を出します。
+
+
+## まとめ
+
+`eslint-plugin-react-compiler`は、`React Compiler` による最適化を最大限に活かすために、開発中の段階からコード品質を高める便利なツールです。
+
+とりあえず有効化するだけで、Reactの基本ルールにより厳密に準拠でき、将来的なコンパイラ導入がスムーズになります。
+
+Reactを長期的・持続的に最適化するために、`eslint-plugin-react-compiler`をぜひ導入し、コードベースを健全な状態に保ちましょう。
