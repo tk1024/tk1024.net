@@ -6,6 +6,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { monokaiSublime } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import styles from "./style.module.css";
+import { YouTubeEmbed } from "@/components/YouTubeEmbed/inedx";
 
 interface Props {
   params: {
@@ -32,10 +33,10 @@ export const generateStaticParams = async () => {
 
 const components = {
   h2: (props: any) => (
-    <h2 className="lg:text-3xl text-2xl mt-16 max-w-3xl" {...props} />
+    <h2 className="lg:text-3xl text-2xl mt-16 max-w-3xl my-4 underline underline-offset-8" {...props} />
   ),
   h3: (props: any) => (
-    <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl" {...props} />
+    <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl my-4" {...props} />
   ),
   a: (props: any) => <a className="text-indigo-700 underline" {...props} />,
   img: (props: any) => <img className="w-full" {...props} />,
@@ -47,13 +48,13 @@ const components = {
     );
   },
   ul: (props: any) => {
-    return <ul className="list-disc list-inside py-4" {...props} />;
+    return <ul className="list-disc list-inside my-4" {...props} />;
   },
   li: (props: any) => {
-    return <li className="my-1" {...props} />;
+    return <li className="my-2" {...props} />;
   },
   p: (props: any) => {
-    return <p className={`my-8 max-w-3xl`} {...props} />;
+    return <p className={`my-8 max-w-3xl leading-8`} {...props} />;
   },
   code: (props: any) => {
     if (/language-/.test(props.className)) {
@@ -61,7 +62,7 @@ const components = {
         <div
           className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 overflow-x-auto`}
         >
-          <SyntaxHighlighter showLineNumbers={true} style={monokaiSublime}>
+          <SyntaxHighlighter showLineNumbers={true} language="tsx" style={monokaiSublime}>
             {props.children.replace(/\n+$/, "")}
           </SyntaxHighlighter>
         </div>
@@ -76,6 +77,7 @@ const components = {
     );
   },
   SpeakerdeckEmbed: SpeakerdeckEmbed,
+  YouTubeEmbed: YouTubeEmbed,
 };
 
 export default function Post({ params }: Props) {
