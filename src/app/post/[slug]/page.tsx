@@ -64,7 +64,7 @@ const components = {
     return <p className={`my-8 max-w-3xl leading-8`} {...props} />;
   },
   code: (props: MDXComponentProps) => {
-    if (/language-/.test(props.className)) {
+    if (props.className && /language-/.test(props.className)) {
       return (
         <div
           className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 overflow-x-auto`}
