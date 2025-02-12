@@ -1,10 +1,11 @@
-import { FlatCompat } from '@eslint/eslintrc'
+const { FlatCompat } = require('@eslint/eslintrc');
+const path = require('path');
 
 const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-})
+  baseDirectory: __dirname,
+});
 
-const eslintConfig = [
+module.exports = [
   ...compat.config({
     extends: ['next/core-web-vitals'],
     rules: {
@@ -14,6 +15,4 @@ const eslintConfig = [
       'react-compiler'
     ]
   }),
-]
-
-export default eslintConfig
+];
