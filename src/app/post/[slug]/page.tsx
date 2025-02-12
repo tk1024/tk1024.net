@@ -1,3 +1,4 @@
+import React from "react";
 import { BlogTags } from "@/components/BlogTags";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
@@ -31,32 +32,38 @@ export const generateStaticParams = async () => {
   }));
 };
 
+interface MDXComponentProps {
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+}
+
 const components = {
-  h2: (props: any) => (
+  h2: (props: MDXComponentProps) => (
     <h2 className="lg:text-3xl text-2xl mt-16 max-w-3xl my-4 underline underline-offset-8" {...props} />
   ),
-  h3: (props: any) => (
+  h3: (props: MDXComponentProps) => (
     <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl my-4" {...props} />
   ),
-  a: (props: any) => <a className="text-indigo-700 underline" {...props} />,
-  img: (props: any) => <img className="w-full" {...props} />,
-  blockquote: (props: any) => {
+  a: (props: MDXComponentProps & { href?: string }) => <a className="text-indigo-700 underline" {...props} />,
+  img: (props: MDXComponentProps & { src?: string; alt?: string }) => <img className="w-full" {...props} />,
+  blockquote: (props: MDXComponentProps) => {
     return (
       <blockquote className="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 max-w-3xl">
         {props.children}
       </blockquote>
     );
   },
-  ul: (props: any) => {
+  ul: (props: MDXComponentProps) => {
     return <ul className="list-disc list-inside my-4" {...props} />;
   },
-  li: (props: any) => {
+  li: (props: MDXComponentProps) => {
     return <li className="my-2" {...props} />;
   },
-  p: (props: any) => {
+  p: (props: MDXComponentProps) => {
     return <p className={`my-8 max-w-3xl leading-8`} {...props} />;
   },
-  code: (props: any) => {
+  code: (props: MDXComponentProps) => {
     if (/language-/.test(props.className)) {
       return (
         <div
