@@ -1,25 +1,29 @@
 import { BlogTags } from "@/components/BlogTags";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
-import { Metadata } from "next";
+import Image from "next/image";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { monokaiSublime } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import styles from "./style.module.css";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed/inedx";
 
-interface Props {
-  params: {
-    slug: string;
-  };
-}
+import type { Metadata } from 'next';
+import { use } from 'react';
 
-export async function generateMetadata({ params }: Props) {
-  const props = getSinglePostMetadata(params.slug);
+// Using temporary synchronous access mode for backward compatibility
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const postData = getSinglePostMetadata(resolvedParams.slug);
 
   const metadata: Metadata = {
-    title: props.frontMatter.title,
-    description: props.frontMatter.description,
+    title: postData.frontMatter.title,
+    description: postData.frontMatter.description,
   };
 
   return metadata;
@@ -80,8 +84,13 @@ const components = {
   YouTubeEmbed: YouTubeEmbed,
 };
 
-export default function Post({ params }: Props) {
-  const { content, frontMatter } = getSinglePostMetadata(params.slug);
+export default function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const resolvedParams = use(params);
+  const { content, frontMatter } = getSinglePostMetadata(resolvedParams.slug);
 
   return (
     <div className="">
