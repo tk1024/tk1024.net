@@ -70,7 +70,7 @@ const components = {
           className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 overflow-x-auto`}
         >
           <SyntaxHighlighter showLineNumbers={true} language="tsx" style={monokaiSublime}>
-            {props.children.replace(/\n+$/, "")}
+            {(props.children?.toString() || '').replace(/\n+$/, "")}
           </SyntaxHighlighter>
         </div>
       );
