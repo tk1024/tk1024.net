@@ -18,13 +18,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${inter.className}`}>
-        <div className="relative flex flex-col lg:flex-row w-full min-h-screen">
-          <aside className="w-full lg:w-[280px] bg-indigo-700 lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:z-10">
+        <div className="flex flex-col lg:flex-row min-h-screen">
+          <div className="w-full lg:w-[280px] bg-indigo-700 lg:fixed lg:inset-y-0 lg:left-0 lg:z-10">
             <Header />
-          </aside>
-          <main className="w-full lg:ml-[280px] lg:p-10 p-4 box-border overflow-x-auto">
+          </div>
+          <div className="w-full lg:pl-[280px] lg:p-10 p-4 box-border overflow-x-auto">
             {children}
-          </main>
+          </div>
         </div>
         <Analytics />
       </body>
