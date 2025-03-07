@@ -1,0 +1,2208 @@
+# TypeScript v4.0からv5.8までの更新内容
+
+このドキュメントは、Devin AIによって生成されたTypeScript v4.0から最新のv5.8までの主要な更新内容を日本語でまとめた記事です。各バージョンで追加された重要な機能や変更点を、公式ドキュメントを基に解説しています。バグ修正や軽微な変更は除外し、主要な機能に焦点を当てています。
+
+## 出典元
+
+この記事は以下の公式TypeScriptリリースノートを参照して作成されています：
+
+- [TypeScript 4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html)
+- [TypeScript 4.1](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-1.html)
+- [TypeScript 4.2](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-2.html)
+- [TypeScript 4.3](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-3.html)
+- [TypeScript 4.4](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-4.html)
+- [TypeScript 4.5](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-5.html)
+- [TypeScript 4.6](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-6.html)
+- [TypeScript 4.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html)
+- [TypeScript 4.8](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-8.html)
+- [TypeScript 4.9](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html)
+- [TypeScript 5.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html)
+- [TypeScript 5.1](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-1.html)
+- [TypeScript 5.2](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html)
+- [TypeScript 5.3](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-3.html)
+- [TypeScript 5.4](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html)
+- [TypeScript 5.5](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html)
+- [TypeScript 5.6](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-6.html)
+- [TypeScript 5.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-7.html)
+- [TypeScript 5.8](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-8.html)
+
+## 目次
+
+- [TypeScript 4.0](#typescript-40)
+- [TypeScript 4.1](#typescript-41)
+- [TypeScript 4.2](#typescript-42)
+- [TypeScript 4.3](#typescript-43)
+- [TypeScript 4.4](#typescript-44)
+- [TypeScript 4.5](#typescript-45)
+- [TypeScript 4.6](#typescript-46)
+- [TypeScript 4.7](#typescript-47)
+- [TypeScript 4.8](#typescript-48)
+- [TypeScript 4.9](#typescript-49)
+- [TypeScript 5.0](#typescript-50)
+- [TypeScript 5.1](#typescript-51)
+- [TypeScript 5.2](#typescript-52)
+- [TypeScript 5.3](#typescript-53)
+- [TypeScript 5.4](#typescript-54)
+- [TypeScript 5.5](#typescript-55)
+- [TypeScript 5.6](#typescript-56)
+- [TypeScript 5.7](#typescript-57)
+- [TypeScript 5.8](#typescript-58)
+
+## TypeScript 4.0
+
+### 主な変更点
+
+- **可変長タプル型 (Variadic Tuple Types)**: タプル型のスプレッド構文がジェネリックになり、高度な操作が可能になりました。タプル内の残余要素（rest elements）が任意の位置に配置可能になり、関数のオーバーロードを大量に書かなくても型安全な関数を定義できるようになりました。
+
+- **ラベル付きタプル要素 (Labeled Tuple Elements)**: タプル型の各要素にラベルを付けられるようになり、可読性が向上しました。関数のパラメータリストとタプル型の間の関係がより明確になり、オプショナルな要素や残余要素の構文も関数パラメータと同様になりました。
+
+- **コンストラクタからのクラスプロパティ型推論 (Class Property Inference from Constructors)**: noImplicitAnyが有効な場合、コンストラクタでの代入からクラスプロパティの型を推論するようになりました。すべてのパスで初期化されない場合は、型に`undefined`が含まれます。
+
+- **短絡代入演算子 (Short-Circuiting Assignment Operators)**: 論理AND（&&=）、論理OR（||=）、Nullish合体演算子（??=）の代入バージョンをサポートし、条件付きで代入を行う場合に簡潔に記述可能になりました。
+
+- **catchの変数に対するunknown型の指定 (unknown on catch Clause Bindings)**: catch句の変数の型をanyの代わりにunknownとして指定可能になり、より型安全なエラーハンドリングが可能になりました。
+
+- **カスタムJSXファクトリ (Custom JSX Factories)**: jsxFragmentFactoryオプションを追加し、フラグメントファクトリをカスタマイズ可能になりました。/** @jsxFrag */プラグマコメントでファイルごとに設定可能です。
+
+### 新しい構文
+
+```typescript
+// 可変長タプル型の例
+type Arr = readonly any[];
+function concat<T extends Arr, U extends Arr>(arr1: T, arr2: U): [...T, ...U] {
+  return [...arr1, ...arr2];
+}
+
+// ラベル付きタプル要素の例
+type Range = [start: number, end: number];
+type Foo = [first: number, second?: string, ...rest: any[]];
+
+// 短絡代入演算子の例
+// a &&= b は a = a && b と同じ
+// a ||= b は a = a || b と同じ
+// a ??= b は a = a ?? b と同じ
+let x = 0;
+x ||= 1; // x が falsy なら 1 を代入
+
+// catchの変数に対するunknown型の指定
+try {
+  // 何かの処理
+} catch (e: unknown) {
+  // e は unknown 型なので、使用前に型チェックが必要
+  if (e instanceof Error) {
+    console.log(e.message);
+  }
+}
+
+// カスタムJSXファクトリの例
+/** @jsx h */
+/** @jsxFrag Fragment */
+import { h, Fragment } from 'preact';
+
+const element = (
+  <>
+    <div>Hello</div>
+  </>
+);
+```
+
+## TypeScript 4.1
+
+### 主な変更点
+
+- **テンプレートリテラル型 (Template Literal Types)**: 文字列リテラル型を組み合わせて新しい文字列リテラル型を作成できる機能が追加されました。JavaScriptのテンプレートリテラル構文と同様の構文を型の位置で使用でき、ユニオン型と組み合わせると、可能なすべての文字列の組み合わせを生成できます。型の推論にも使用可能で、文字列から情報を抽出して型安全に処理できます。また、文字列の変換用ユーティリティ型（Uppercase、Lowercase、Capitalize、Uncapitalize）も追加されました。
+
+- **マップ型でのキーのリマッピング (Key Remapping in Mapped Types)**: マップ型内でキーを変換するための新しい`as`句が導入されました。既存のプロパティ名から新しいプロパティ名を生成可能になり、テンプレートリテラル型と組み合わせることで、命名パターンの変換が容易になりました。`never`を生成することでプロパティをフィルタリングすることも可能です。
+
+- **再帰的な条件付き型 (Recursive Conditional Types)**: 条件付き型が自身を参照できるようになり、再帰的な型エイリアスが容易になりました。深くネストされた配列や`Promise`チェーンなどの複雑な型を表現可能になり、型システムの表現力が大幅に向上しました。
+
+- **チェックされたインデックスアクセス (Checked Indexed Accesses)**: 新しいコンパイラフラグ`--noUncheckedIndexedAccess`が導入され、プロパティアクセスやインデックスアクセスが潜在的に`undefined`になる可能性を考慮するようになりました。より厳格な型チェックにより、実行時エラーを防止できます。
+
+- **baseUrlなしでのpathsの使用 (paths without baseUrl)**: `paths`オプションが`baseUrl`なしで使用可能になり、パスマッピングをより柔軟に設定できるようになりました。
+
+- **React 17 JSXファクトリ (React 17 JSX Factories)**: React 17の新しいJSX変換をサポートする新しいjsxコンパイラオプションが追加されました。`react-jsx`と`react-jsxdev`の2つの新しいオプションが利用可能になりました。
+
+### 新しい構文
+
+```typescript
+// テンプレートリテラル型の例
+type World = "world";
+type Greeting = `hello ${World}`; // "hello world"型
+
+// ユニオン型との組み合わせ
+type Color = "red" | "blue";
+type Quantity = "one" | "two";
+type SeussFish = `${Quantity | Color} fish`; // "one fish" | "two fish" | "red fish" | "blue fish"型
+
+// 文字列変換ユーティリティ型
+type Greeting = "Hello, world";
+type ShoutyGreeting = Uppercase<Greeting>; // "HELLO, WORLD"型
+type QuietGreeting = Lowercase<Greeting>; // "hello, world"型
+type FirstLetter = Capitalize<"hello">; // "Hello"型
+type RestOfWord = Uncapitalize<"Hello">; // "hello"型
+
+// マップ型でのキーのリマッピング
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+};
+
+interface Person {
+  name: string;
+  age: number;
+}
+
+type PersonGetters = Getters<Person>;
+// {
+//   getName: () => string;
+//   getAge: () => number;
+// }
+
+// プロパティのフィルタリング
+type RemoveKindField<T> = {
+  [K in keyof T as Exclude<K, "kind">]: T[K]
+};
+
+// 再帰的な条件付き型
+type Awaited<T> = T extends Promise<infer U> ? Awaited<U> : T;
+
+// 使用例
+type A = Awaited<Promise<Promise<number>>>; // number型
+```
+
+## TypeScript 4.2
+
+### 主な変更点
+
+- **スマートな型エイリアスの保持 (Smarter Type Alias Preservation)**: 型エイリアスが使用された場合、その情報を保持するように改善されました。エラーメッセージ、.d.tsファイル出力、エディタでの型表示が改善され、複雑な型が読みやすく表示されるようになり、TypeScriptの使いやすさが向上しました。
+
+- **タプル型での先頭/中間の残余要素 (Leading/Middle Rest Elements in Tuple Types)**: 残余要素（...rest）がタプル型の任意の位置に配置可能になりました。先頭に可変長の引数を持ち、後ろに固定の引数を持つ関数のモデル化が可能になりました。制約として、1つのタプルに1つの残余要素のみ許可され、残余要素の後にオプショナル要素は配置できません。
+
+- **inオペレータに対する厳格なチェック (Stricter Checks For The in Operator)**: JavaScriptでは非オブジェクト型に対するinオペレータの使用は実行時エラーになりますが、TypeScript 4.2では設計時にこれをキャッチするように改善されました。
+
+- **--noPropertyAccessFromIndexSignature**: インデックスシグネチャで宣言されたプロパティに対して、ドット記法（obj.prop）でのアクセスを制限するオプションが追加されました。明示的に宣言されていないプロパティへのアクセスをエラーとして検出可能になり、誤字などによるバグを早期に発見できるようになりました。
+
+- **abstractコンストラクトシグネチャ (abstract Construct Signatures)**: コンストラクタシグネチャに`abstract`修飾子を指定可能になりました。抽象クラスを型パラメータとして渡せるようになり、ミックスインパターンなどで活用可能になりました。抽象クラスのインスタンス化を防ぎつつ、型安全に扱えるようになりました。
+
+- **論理式での未呼び出し関数チェックの改善 (Improved Uncalled Function Checks in Logical Expressions)**: &&や||式内での未呼び出し関数のチェックが適用されるようになりました。strictNullChecksが有効な場合に、関数呼び出しを忘れるミスを検出できます。
+
+- **分割代入変数の未使用マーク (Destructured Variables Can Be Explicitly Marked as Unused)**: 分割代入で取得した変数の先頭にアンダースコア（_）をつけることで未使用と明示可能になりました。noUnusedLocalsオプションが有効でも、_で始まる変数は未使用でもエラーになりません。
+
+- **オプショナルプロパティと文字列インデックスシグネチャ間の緩和されたルール (Relaxed Rules Between Optional Properties and String Index Signatures)**: オプショナルプロパティを持つオブジェクト型が、互換性のある文字列インデックスシグネチャを持つ型に代入可能になりました。ただし、明示的にundefinedを含む型や、非オプショナルプロパティには適用されません。
+
+### 新しい構文
+
+```typescript
+// タプル型での先頭/中間の残余要素
+let foo: [...string[], number]; // 文字列の配列の後に数値が1つ
+let bar: [boolean, ...string[], boolean]; // 真偽値、任意の数の文字列、真偽値
+
+// abstractコンストラクトシグネチャ
+interface HasArea {
+  getArea(): number;
+}
+
+// abstract修飾子を使用したコンストラクタシグネチャ
+let Ctor: abstract new () => HasArea = Shape;
+
+// 分割代入変数の未使用マーク
+const { _unused, ...rest } = obj; // _unusedは未使用と明示
+
+// inオペレータに対する厳格なチェック
+// エラーになるコード例
+"foo" in 42; // エラー: 'number'型は'object'型に代入できません
+```
+
+## TypeScript 4.3
+
+### 主な変更点
+
+- **プロパティの読み書きに対する個別の型定義 (Separate Write Types on Properties)**: プロパティの読み取り時と書き込み時に異なる型を指定可能になりました。getterとsetterで異なる型を使用できるようになり、型変換APIのモデル化が改善されました。例えば、setterは文字列や真偽値を受け付けるが、getterは常に数値を返すといった実装が可能になりました。
+
+- **override修飾子と--noImplicitOverrideフラグ**: メソッドがスーパークラスのメソッドをオーバーライドすることを明示的に示す`override`修飾子が追加されました。`--noImplicitOverride`フラグを使用すると、オーバーライドするメソッドに`override`修飾子の使用を強制できるようになりました。これにより、意図しないメソッドの上書きや、スーパークラスの変更による問題を早期に検出できます。
+
+- **テンプレート文字列型の改善 (Template String Type Improvements)**: テンプレート文字列型の推論が改善され、文字列リテラル型によるコンテキスト型付けが可能になりました。異なるテンプレート文字列型間の関係性の検証と推論が強化され、複雑なテンプレート文字列パターンの型チェックが可能になりました。
+
+- **ECMAScript #privateクラス要素の拡張**: `#private`名前を持つクラス要素がプロパティだけでなく、メソッドやアクセサにも適用可能になりました。staticメンバーにも`#private`名前を使用可能になり、実行時に真に非公開なクラスメンバーを定義する機能が拡張されました。
+
+- **ConstructorParametersが抽象クラスで動作するように**: `ConstructorParameters`型ヘルパーが`abstract`クラスでも使用可能になりました。抽象クラスのコンストラクタパラメータ型を取得できるようになり、ファクトリパターンなどで活用可能になりました。
+
+- **ジェネリクスのコンテキスト的な型の絞り込み (Contextual Narrowing for Generics)**: ジェネリック値に対する型の絞り込みロジックが改善されました。制約を持つジェネリック型のインスタンス検査が正しく動作するようになり、より複雑なジェネリックパターンでのコード記述が容易になりました。
+
+- **常に真となるPromiseチェック (Always-Truthy Promise Checks)**: `strictNullChecks`が有効な場合、条件式で`Promise`オブジェクトを直接チェックするとエラーになるようになりました。これにより、`await`を忘れた可能性があるコードを検出し、バグを防止できます。
+
+- **staticインデックスシグネチャ (static Index Signatures)**: クラスの静的側にインデックスシグネチャを宣言可能になりました。動的なプロパティアクセスをクラス自体に対して型安全に行えるようになりました。
+
+### 新しい構文
+
+```typescript
+// プロパティの読み書きに対する個別の型定義
+class Thing {
+  #size = 0;
+  
+  // 読み取り時は常にnumber型
+  get size(): number {
+    return this.#size;
+  }
+  
+  // 書き込み時はstring、number、boolean型を受け付ける
+  set size(value: string | number | boolean) {
+    let num = Number(value);
+    
+    // NaNなどの不正な値を防ぐ
+    if (!Number.isFinite(num)) {
+      this.#size = 0;
+      return;
+    }
+    
+    this.#size = num;
+  }
+}
+
+// override修飾子の使用例
+class Base {
+  someHelperMethod() {
+    // ...
+  }
+}
+
+class Derived extends Base {
+  // 明示的にオーバーライドを示す
+  override someHelperMethod() {
+    // ...
+  }
+}
+
+// ECMAScript #privateクラス要素
+class Foo {
+  #someMethod() {
+    //...
+  }
+  
+  get #someValue() {
+    return 100;
+  }
+  
+  // クラス内からは#で始まるプライベートメンバーにアクセス可能
+  publicMethod() {
+    this.#someMethod();
+    return this.#someValue;
+  }
+}
+
+// staticインデックスシグネチャ
+class ConfigFlags {
+  static DEBUG = false;
+  static PRODUCTION = false;
+  
+  // 静的インデックスシグネチャ
+  static [key: string]: boolean;
+}
+
+// テンプレート文字列型の改善
+type Color = "red" | "blue";
+type Quantity = "one" | "two";
+type SeussFish = `${Quantity} ${Color} fish`;
+// SeussFish = "one red fish" | "one blue fish" | "two red fish" | "two blue fish"
+```
+
+## TypeScript 4.4
+
+### 主な変更点
+
+- **エイリアス条件と判別式の制御フロー分析 (Control Flow Analysis of Aliased Conditions and Discriminants)**: 型ガードの結果を定数に保存して再利用できるように改善されました。判別式を抽出して使用する場合でも元のオブジェクトの型を正しく絞り込み可能になり、複数の条件チェックを組み合わせた場合も型の絞り込みが正しく機能するようになりました。
+
+- **シンボルとテンプレート文字列パターンのインデックスシグネチャ**: インデックスシグネチャで`symbol`型のキーがサポートされるようになりました。また、テンプレート文字列パターン（例：`` `data-${string}` ``）をインデックスシグネチャのキーとして使用可能になり、特定のプレフィックスを持つプロパティに対する型チェックが可能になりました。
+
+- **catch句の変数に`unknown`型をデフォルトで使用 (--useUnknownInCatchVariables)**: `--useUnknownInCatchVariables`フラグが導入され、`strictNullChecks`が有効な場合、catch句の変数のデフォルト型が`any`から`unknown`に変更されました。これにより例外処理の型安全性が向上し、例外オブジェクトの使用前に型チェックが必要になりました。
+
+- **正確なオプショナルプロパティ型 (--exactOptionalPropertyTypes)**: `--exactOptionalPropertyTypes`フラグが導入され、オプショナルプロパティ型が書かれた通りに解釈され、自動的に`| undefined`が追加されなくなりました。これによりプロパティの存在と`undefined`値の区別が可能になりました。
+
+- **クラスの`static`ブロック**: クラスの静的メンバーの複雑な初期化コードを書くための`static`ブロックがサポートされるようになりました。静的ブロック内ではクラスのプライベートフィールドにアクセス可能で、複数の`static`ブロックを定義でき、記述順に実行されます。
+
+- **パフォーマンスの改善**: 宣言ファイル出力の高速化、パス正規化の高速化、パスマッピングの高速化、`--strict`を使用した増分ビルドの高速化、大規模出力ファイルのソースマップ生成の高速化、`--force`ビルドの高速化など、多くのパフォーマンス改善が行われました。
+
+- **JavaScriptのスペル提案**: JavaScriptファイルでもTypeScriptのスペル提案機能が利用可能になりました。`// @ts-check`や`checkJs`が無効でも「Did you mean…?」提案が表示されるようになりました。
+
+- **インレイヒント**: パラメータ名や戻り値の型などの情報をコード内に表示する「インレイヒント」機能が追加されました。Visual Studio Codeなどのエディタと連携して、コード理解を助ける情報を表示します。
+
+### 新しい構文
+
+```typescript
+// エイリアス条件と判別式の制御フロー分析
+function example(x: string | number) {
+  // 型ガードの結果を定数に保存
+  const isString = typeof x === "string";
+  
+  // 保存した結果を使用しても型の絞り込みが機能
+  if (isString) {
+    console.log(x.toUpperCase()); // xはstring型として扱われる
+  } else {
+    console.log(x.toFixed(2)); // xはnumber型として扱われる
+  }
+}
+
+// シンボルとテンプレート文字列パターンのインデックスシグネチャ
+interface DataProps {
+  // テンプレート文字列パターンをキーとして使用
+  [key: `data-${string}`]: string;
+}
+
+const element: DataProps = {
+  "data-id": "123",
+  "data-user": "user001",
+  // "id": "invalid" // エラー: 'id'は`data-${string}`パターンに一致しない
+};
+
+// クラスの静的ブロック
+class MyClass {
+  static x = 0;
+  static y: number;
+  
+  // 複雑な初期化ロジックを静的ブロックで実装
+  static {
+    this.y = 1; // thisはクラス自体を参照
+    
+    // 複雑な初期化ロジック
+    for (let i = 0; i < 10; i++) {
+      this.x += i;
+    }
+  }
+}
+
+// catch句の変数に`unknown`型をデフォルトで使用
+try {
+  // 何らかの処理
+} catch (e) {
+  // TypeScript 4.4以降、eは`unknown`型
+  // 使用前に型チェックが必要
+  if (e instanceof Error) {
+    console.log(e.message); // OK: eはError型
+  }
+}
+```
+
+## TypeScript 4.5
+
+### 主な変更点
+
+- **node_modulesからのlibサポート**: TypeScriptが組み込みの型定義ファイル（`.d.ts`）をオーバーライドする方法が導入されました。`@typescript/lib-*`パッケージを使用して特定の組み込みlibを置き換え可能になり、例えば`@typescript/lib-dom`を使用してDOMの型定義を特定のバージョンに固定できるようになりました。これにより型定義の更新を自分のペースで管理できるようになりました。
+
+- **Awaited型とPromiseの改善**: 再帰的にPromiseをアンラップする`Awaited`ユーティリティ型が導入されました。`Promise.all`などの組み込み関数の型推論が改善され、非同期操作の型安全性が向上しました。
+
+- **テンプレート文字列型を判別式として使用可能に**: テンプレート文字列型を使った型の絞り込みが可能になりました。テンプレート文字列パターンを判別式（discriminant）として使用できるようになり、文字列パターンに基づいた型の絞り込みが強化されました。
+
+- **module es2022**: 新しいモジュール設定`es2022`が追加され、トップレベル`await`をサポート（`async`関数の外でも`await`が使用可能に）するようになりました。安定した最初のターゲットとして`es2022`が提供されました。
+
+- **条件付き型の末尾再帰の最適化**: 条件付き型の末尾再帰を検出して最適化する機能が追加されました。これにより複雑な型の操作でも型の再帰的な展開の制限に達しにくくなり、文字列操作などの複雑な型定義が可能になりました。
+
+- **インポートの削除を無効化 (Import Elision)**: `preserveValueImports`フラグが導入され、使用されていないように見えるインポートを保持する機能が追加されました。これによりSvelte、Vue.jsなどのフレームワークでの型安全なコード生成をサポートするようになりました。
+
+- **インポート名に対する`type`修飾子**: 個々の名前付きインポートに`type`修飾子を使用可能になりました。同じモジュールから値と型を混在してインポートできるようになり、`import { someFunc, type BaseType } from "./some-module.js";`のような構文がサポートされるようになりました。
+
+- **プライベートフィールドの存在チェック**: ECMAScriptの提案である「プライベートフィールドの存在チェック」がサポートされるようになりました。`in`演算子を使用してオブジェクトにプライベートフィールドが存在するか確認できるようになり、クラスインスタンスの「ブランドチェック」として活用できるようになりました。
+
+- **インポートアサーション**: ECMAScriptの「インポートアサーション」提案がサポートされるようになりました。インポートされるファイルの形式を指定する構文が追加され、`import obj from "./something.json" assert { type: "json" };`のような構文がサポートされるようになりました。
+
+### 新しい構文
+
+```typescript
+// Awaited型の使用例
+type A = Awaited<Promise<string>>;  // string
+type B = Awaited<Promise<Promise<number>>>;  // number
+type C = Awaited<boolean | Promise<number>>;  // boolean | number
+
+// インポート名に対するtype修飾子
+// 値と型を同時にインポート
+import { createUser, type User, type Admin } from "./user.js";
+
+// プライベートフィールドの存在チェック
+class HasX {
+  #x: number = 0;
+  
+  static hasX(obj: any): obj is HasX {
+    return #x in obj;  // プライベートフィールドの存在チェック
+  }
+}
+
+// インポートアサーション
+import data from "./data.json" assert { type: "json" };
+
+// テンプレート文字列型を判別式として使用
+type DataType = 
+  | { type: `${string}Data`; payload: unknown }
+  | { type: "error"; error: Error };
+
+function processData(data: DataType) {
+  if (data.type === "error") {
+    // data.error が利用可能
+    console.error(data.error.message);
+  } else {
+    // data.type は `${string}Data` 型
+    // data.payload が利用可能
+    console.log(`Processing ${data.type}:`, data.payload);
+  }
+}
+
+// トップレベルawait (module es2022)
+// ファイルの先頭レベルでawaitを使用可能
+const response = await fetch("https://example.com/data");
+const data = await response.json();
+console.log(data);
+```
+
+## TypeScript 4.6
+
+### 主な変更点
+
+- **コンストラクタ内でsuper()呼び出し前のコードを許可**: 従来はクラスのプロパティ初期化子がある場合、コンストラクタ内でsuper()を呼び出す前に他のコードを実行できませんでした。TypeScript 4.6ではsuper()呼び出し前に他のコードを実行できるように緩和されました。ただしthisへの参照はsuper()呼び出し後にのみ許可される制約は維持されています。
+
+- **分割代入された判別共用体の制御フロー分析**: オブジェクトから分割代入された変数に対する型の絞り込みが改善されました。判別プロパティ（discriminant property）を分割代入しても、他の分割代入された変数の型が正しく絞り込まれるようになりました。const宣言で分割代入された場合や、再代入されないパラメータの場合に有効です。
+
+- **再帰的な型チェックの改善**: 複雑な再帰的型の互換性チェックが改善されました。明示的に書かれた深くネストされた型と、型チェック中に生成された無限に展開する型を区別できるようになりました。型チェックのパフォーマンスが向上し、一部のライブラリでは型チェック時間が50%削減されました。
+
+- **インデックスアクセス型の推論改善**: マップされたオブジェクト型に対するインデックスアクセス型の推論が改善されました。複雑なジェネリック型でのインデックスアクセスの型推論がより正確になりました。
+
+- **依存パラメータの制御フロー分析**: タプルの判別共用体を使用したレスト引数の型の絞り込みが改善されました。最初の引数の値に基づいて後続の引数の型を正しく絞り込めるようになりました。
+
+- **--target es2022**: ES2022をターゲットとしてサポートするようになりました。クラスフィールドなどの機能を保持したまま出力可能になり、Array.at()、Object.hasOwn、Error作成時のcauseオプションなどの新しい組み込み機能を使用できるようになりました。
+
+- **react-jsxモードでの不要な引数の削除**: `--jsx react-jsx`モードでのJSX変換時に不要な`void 0`引数が削除されるようになりました。これによりバンドルサイズの削減に貢献します。
+
+- **JSDocの名前提案**: TypeScriptファイルでJSDocコメントのパラメータ名が実際の関数パラメータ名と一致しない場合に提案を表示するようになりました。コメントとコードの同期を維持するのに役立ちます。
+
+- **JavaScriptファイルでの構文とバインディングエラーの拡張**: JavaScriptファイルでもTypeScriptの構文チェックが拡張されました。重複宣言や不正な修飾子の使用などのエラーを検出できるようになり、`// @ts-nocheck`コメントで無効化可能です。
+
+### 新しい構文
+
+```typescript
+// コンストラクタ内でsuper()呼び出し前のコードを許可
+class Base {
+  constructor() {
+    console.log("Base constructor");
+  }
+}
+
+class Derived extends Base {
+  prop = 10;
+  
+  constructor() {
+    // TypeScript 4.6以前ではエラー、4.6以降では許可
+    const initialization = "Initializing...";
+    console.log(initialization);
+    
+    super();
+    
+    // super()呼び出し後にのみthisを参照可能
+    console.log(this.prop);
+  }
+}
+
+// 分割代入された判別共用体の制御フロー分析
+type Action = 
+  | { kind: "INCREMENT"; amount: number }
+  | { kind: "DECREMENT"; amount: number }
+  | { kind: "RESET" };
+
+function reducer(state: number, action: Action) {
+  // kindを分割代入
+  const { kind } = action;
+  
+  if (kind === "INCREMENT") {
+    // actionはINCREMENT型に絞り込まれる
+    return state + action.amount;
+  } else if (kind === "DECREMENT") {
+    // actionはDECREMENT型に絞り込まれる
+    return state - action.amount;
+  } else {
+    // actionはRESET型に絞り込まれる
+    return 0;
+  }
+}
+```
+
+## TypeScript 4.7
+
+### 主な変更点
+
+- **ECMAScriptモジュールのNode.jsサポート**: Node.jsでのECMAScriptモジュール（ESM）サポートが追加されました。新しい`module`設定として`node16`と`nodenext`が追加され、`package.json`の`type`フィールドによるモジュール形式の制御をサポートします。また、`.mts`と`.cts`という新しいファイル拡張子をサポートし、CommonJSとESMの相互運用性が改善されました。`package.json`の`exports`、`imports`フィールドもサポートされるようになりました。
+
+- **モジュール検出の制御**: `moduleDetection`オプションが追加され、ファイルがモジュールとして扱われるかどうかの制御が可能になりました。`"auto"`（デフォルト）、`"legacy"`（4.6以前の動作）、`"force"`（すべてのファイルをモジュールとして扱う）の3つの値を設定できます。
+
+- **括弧付き要素アクセスの制御フロー分析**: リテラル型とユニークシンボルを使用したオブジェクトの要素アクセスに対する型の絞り込みが改善されました。シンボルをキーとして使用する場合の型ガードが正しく機能するようになりました。
+
+- **オブジェクトとメソッドの関数推論の改善**: オブジェクトや配列内の関数に対するより細かな型推論が可能になりました。左から右への一貫した型の流れが実現しました。
+
+- **インスタンス化式**: 関数やコンストラクタに直接型引数を渡すことが可能になりました。例えば、`const makeStringBox = makeBox<string>;`のように記述できます。汎用的な関数をより特化した関数として使用する際に便利です。
+
+- **`infer`型変数での`extends`制約**: 条件付き型の`infer`キーワードで型変数に制約を追加できるようになりました。例えば、`T extends [infer S extends string, ...unknown[]]`のように記述できます。これによりネストされた条件付き型を簡略化できます。
+
+- **型パラメータのオプション分散アノテーション**: 型パラメータに`in`、`out`、または両方を指定して分散を明示的に制御できるようになりました。`out T`（共変）、`in T`（反変）、`in out T`（不変）の指定が可能で、型チェックの精度と速度の向上に貢献します。
+
+- **`moduleSuffixes`によるモジュール解決のカスタマイズ**: モジュール指定子の検索方法をカスタマイズするための`moduleSuffixes`オプションが追加されました。例えば、`"moduleSuffixes": [".ios", ".native", ""]`のように設定できます。React Nativeなどのプロジェクトで各ターゲットプラットフォーム向けに別々の設定が可能になりました。
+
+- **resolution-mode**: `/// <reference types="..." resolution-mode="require" />`または`/// <reference types="..." resolution-mode="import" />`ディレクティブをサポートするようになりました。CommonJSモジュールからECMAScriptモジュールの型を参照する場合や、その逆の場合に便利です。
+
+- **ソース定義へ移動**: 新しいエディタコマンド「ソース定義へ移動」（Go To Source Definition）が追加されました。宣言ファイル（.d.ts）ではなく、実装ファイル（.jsや.ts）の定義を検索します。
+
+- **グループを考慮したインポートの整理**: 「インポートの整理」機能がインポート文のグループを維持するように改善されました。コメントや改行で区切られたインポートグループの順序が保持されます。
+
+- **オブジェクトメソッドのスニペット補完**: オブジェクトリテラルのメソッド補完時に、名前だけでなくメソッド定義全体のスニペット補完を提供するようになりました。
+
+### 新しい構文
+
+```typescript
+// ECMAScriptモジュールのNode.jsサポート
+// package.json
+{
+  "name": "my-package",
+  "type": "module",  // "module"または"commonjs"を指定
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  }
+}
+
+// .mts ファイル (ESM)
+export function hello() {
+  console.log("Hello from ESM");
+}
+
+// .cts ファイル (CommonJS)
+export function hello() {
+  console.log("Hello from CommonJS");
+}
+
+// インスタンス化式
+function makeBox<T>(value: T) {
+  return { value };
+}
+
+// 特定の型に特化した関数を作成
+const makeStringBox = makeBox<string>;
+const stringBox = makeStringBox("hello"); // { value: string }
+
+// `infer`型変数での`extends`制約
+type FirstString<T> = T extends [infer S extends string, ...unknown[]] ? S : never;
+
+// 使用例
+type T1 = FirstString<[string, number, boolean]>; // string
+type T2 = FirstString<[123, number, boolean]>; // never (123は文字列ではない)
+
+// 型パラメータのオプション分散アノテーション
+// 共変（out）- 型パラメータが出力位置にのみ現れる
+interface Getter<out T> {
+  get(): T;
+}
+
+// 反変（in）- 型パラメータが入力位置にのみ現れる
+interface Setter<in T> {
+  set(value: T): void;
+}
+
+// 不変（in out）- 型パラメータが入力と出力の両方の位置に現れる
+interface GetAndSet<in out T> {
+  get(): T;
+  set(value: T): void;
+}
+```
+
+## TypeScript 4.8
+
+### 主な変更点
+
+- **交差型の簡略化、共用体型の互換性、型の絞り込みの改善**: `--strictNullChecks`モードでの型の正確性と一貫性が改善されました。`unknown`型が`{} | null | undefined`型と互換性を持つようになり、オブジェクト型と`{}`の交差型が単純化され、オブジェクト型に簡略化されるようになりました。`NonNullable<T>`型が`T & {}`として再定義され、条件付き型からより効率的な交差型になりました。型の絞り込みも改善され、`unknown`型が`{} | null | undefined`と同様に真偽値チェックで絞り込まれるようになりました。また、ジェネリック値の型の絞り込みが改善され、`null`や`undefined`チェック後に`{}`との交差型として扱われるようになりました。
+
+- **テンプレート文字列型での`infer`型の推論改善**: テンプレート文字列型内で`extends`制約付きの`infer`型変数を使用する場合、リテラル型が抽出されるようになりました。例えば、`` "100" extends `${infer U extends number}` ? U : never ``が`number`ではなく`100`型になります。文字列からプリミティブ型への変換が可能な場合のみリテラル型として推論されます。
+
+- **`--build`、`--watch`、`--incremental`のパフォーマンス改善**: ウォッチモードでの不要なタイムスタンプ更新を回避し、再ビルド速度が向上しました。大規模なコードベースで10〜25%の時間削減、変更がない場合は最大40%の時間削減が実現しました。
+
+- **オブジェクトと配列リテラルの比較時のエラー**: オブジェクトや配列リテラルを`===`や`==`で直接比較する誤用を検出するようになりました。JavaScriptではオブジェクト同士の比較は参照比較であり、値比較ではないことを警告します。
+
+- **バインディングパターンからの型推論の改善**: 分割代入パターンが型引数の候補として直接使用されなくなり、より正確な型推論が可能になりました。型引数の推論時にバインディングパターンは補助的なヒントとしてのみ使用されます。
+
+- **ファイル監視の修正（特に`git checkout`時）**: Unix系システムでのファイル監視の問題が修正されました。iノードベースのファイルシステムでのファイル変更検出が改善され、vimでの保存やgitブランチ切り替え後の型チェックの問題が解決しました。
+
+- **参照検索のパフォーマンス改善**: エディタでの「参照を検索」機能のパフォーマンスが約20%向上しました。
+
+- **自動インポートから特定のファイルを除外**: エディタ設定で自動インポート候補から特定のファイルやパターンを除外できるようになりました。設定例：`"typescript.preferences.autoImportFileExcludePatterns": ["**/node_modules/@types/node"]`
+
+- **制約のないジェネリック型が`{}`に代入できなくなる変更**: `strictNullChecks`有効時、制約のない型パラメータが`{}`や`object`型の位置で使用される場合にエラーになるようになりました。これは`null`や`undefined`が不正な値として渡される可能性を防止するためです。修正方法としては、型パラメータに`extends {}`制約を追加するか、実行時チェックを行うことが推奨されています。
+
+- **JavaScriptファイルでの型のインポート/エクスポートの禁止**: JavaScriptファイルで値を持たない型だけをインポート/エクスポートするとエラーになるようになりました。これはECMAScriptモジュールでの実行時エラーを防止するための変更です。修正方法としては、`import`文で型を直接参照せず、`/** @typedef */`コメントを使用することが推奨されています。
+
+### 新しい構文
+
+```typescript
+// 交差型の簡略化と型の絞り込みの改善
+function f(x: unknown, y: {} | null | undefined) {
+  // 以前はエラーだったが、TypeScript 4.8では動作する
+  x = y; // unknownは{} | null | undefinedと互換性がある
+  
+  // 型の絞り込みの改善
+  if (x) {
+    // xは{}型に絞り込まれる
+    const z: {} = x; // OK
+  }
+}
+
+// NonNullable<T>の再定義
+// 以前の定義
+// type NonNullable<T> = T extends null | undefined ? never : T;
+
+// 新しい定義
+type NonNullable<T> = T & {};
+
+// テンプレート文字列型での`infer`型の推論改善
+type ExtractNumber<S> = S extends `${infer U extends number}` ? U : never;
+
+// 使用例
+type T1 = ExtractNumber<"100">; // 100 (numberリテラル型)
+type T2 = ExtractNumber<"hello">; // never (数値に変換できない)
+
+// 制約のないジェネリック型が`{}`に代入できなくなる変更
+function beforeTS48<T>(value: T) {
+  const obj: {} = value; // TypeScript 4.8ではエラー
+}
+
+// 修正方法1: 型パラメータに制約を追加
+function afterTS48<T extends {}>(value: T) {
+  const obj: {} = value; // OK
+}
+
+// 修正方法2: 実行時チェックを追加
+function afterTS48Alternative<T>(value: T) {
+  if (value !== null && value !== undefined) {
+    const obj: {} = value; // OK
+  }
+}
+```
+
+## TypeScript 4.9
+
+### 主な変更点
+
+- **satisfiesオペレータ**: 式の型を検証しつつ、その式の具体的な型情報を保持するための新しい`satisfies`演算子が追加されました。型アノテーションとは異なり、式の具体的な型情報が失われません。オブジェクトのプロパティが特定の型を満たしているかを検証しつつ、各プロパティの具体的な型情報を保持できます。例えば、`const palette = { red: [255, 0, 0], green: "#00ff00" } satisfies Record<string, string | number[]>`のように使用できます。
+
+- **inオペレータによる未リストプロパティの型絞り込み**: `in`演算子を使用した型の絞り込みが改善されました。型定義に明示的にリストされていないプロパティに対しても型の絞り込みが機能するようになりました。例えば、`unknown`型のオブジェクトに対して`"name" in obj`のチェックを行うと、`obj.name`にアクセス可能になります。型が`Record<"property-key", unknown>`と交差するように絞り込まれます。
+
+- **クラスの自動アクセサ**: ECMAScriptの新機能「auto-accessors」をサポートするようになりました。`accessor`キーワードを使用してクラスのプロパティを宣言できるようになりました。内部的には`get`/`set`アクセサと到達不能なプライベートプロパティに変換されます。例えば、`class Person { accessor name: string; }`のように宣言できます。
+
+- **NaNとの等価チェックに関する警告**: `NaN === value`や`NaN == value`などの比較が常に`false`を返すことを警告するようになりました。また、`NaN !== value`や`NaN != value`などの比較が常に`true`を返すことも警告します。代わりに`Number.isNaN(value)`を使用するよう提案されます。
+
+- **ファイル監視がファイルシステムイベントを使用するように**: ファイル監視がポーリング方式からファイルシステムイベント方式にデフォルト変更されました。これによりCPUリソースの使用量が大幅に削減され、大規模なプロジェクトや`--watch`モードでのパフォーマンスが向上しました。ネットワークファイルシステムなど特殊な環境では従来のポーリング方式に戻すことも可能です。
+
+- **「未使用のインポートを削除」と「インポートを並べ替え」コマンド**: エディタ向けに新しいコマンド「未使用のインポートを削除」が追加されました。既存の「インポートを整理」（削除と並べ替えを同時に行う）と「インポートを並べ替え」（並べ替えのみ）に加えて、削除のみを行うコマンドが利用可能になりました。Visual Studio Code 1.73以降でコマンドパレットから利用できます。
+
+- **returnキーワードの定義へ移動**: エディタで`return`キーワードに対して「定義へ移動」を実行すると、対応する関数の先頭にジャンプするようになりました。これにより、どの関数に`return`が属しているかを素早く確認できるようになりました。
+
+- **パフォーマンスの改善**: 構文ノードの走査関数`forEachChild`と`visitEachChild`がジャンプテーブルを使用するように最適化されました。これによりバインディングフェーズで最大20%、出力生成で最大3%の時間削減が実現しました。また、条件付き型の真の分岐での型情報保持方法が最適化され、型チェック時間が約3%削減されました。
+
+### 新しい構文
+
+```typescript
+// satisfiesオペレータ
+// 型アノテーションを使用した場合
+const palette1: Record<string, string | number[]> = {
+  red: [255, 0, 0],
+  green: "#00ff00",
+  blue: [0, 0, 255]
+};
+// palette1.redは(string | number[])型として扱われる
+// palette1.red[0]はエラー: プロパティ '0' は型 'string | number[]' に存在しません。
+
+// satisfiesオペレータを使用した場合
+const palette2 = {
+  red: [255, 0, 0],
+  green: "#00ff00",
+  blue: [0, 0, 255]
+} satisfies Record<string, string | number[]>;
+// palette2.redはnumber[]型として扱われる
+// palette2.red[0]は有効: 255にアクセス可能
+
+// inオペレータによる未リストプロパティの型絞り込み
+function processValue(value: unknown) {
+  if ("name" in value) {
+    // TypeScript 4.9以降では、value.nameにアクセス可能
+    console.log(value.name);
+  }
+}
+
+// クラスの自動アクセサ
+class Person {
+  // 自動アクセサ
+  accessor name: string;
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+// 内部的には以下のように変換される
+class PersonInternal {
+  #__name: string;
+  
+  get name() {
+    return this.#__name;
+  }
+  
+  set name(value: string) {
+    this.#__name = value;
+  }
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+```
+
+## TypeScript 5.0
+
+### 主な変更点
+
+- **デコレータ**: ECMAScriptの新機能であるデコレータをサポートするようになりました。クラスやそのメンバーを再利用可能な方法でカスタマイズできます。メソッド、プロパティ、アクセサ、クラス自体に適用可能で、デコレータ関数は対象のメソッドや要素を受け取り、新しい関数や動作を返すことができます。コンテキストオブジェクトを通じてメタデータにアクセスでき、`addInitializer`を使用してコンストラクタの開始時にフックを追加することも可能です。これは以前の実験的デコレータ（`--experimentalDecorators`）とは異なる新しい実装です。
+
+- **constタイプパラメータ**: ジェネリック型パラメータに`const`修飾子を追加できるようになりました。これにより、`as const`を使わなくても、リテラル型の推論が可能になります。例えば、`function getNamesExactly<const T extends HasNames>(arg: T): T["names"] { ... }`のように使用でき、配列やオブジェクトの具体的なリテラル型が保持されます。
+
+- **複数の設定ファイルを`extends`でサポート**: `tsconfig.json`の`extends`フィールドが複数のエントリを取れるようになりました。例えば、`"extends": ["./tsconfig1.json", "./tsconfig2.json"]`のように指定できます。これは複数の設定ファイルから設定を継承する場合に便利で、競合するフィールドがある場合は後のエントリが優先されます。
+
+- **すべての`enum`がユニオン`enum`に**: すべての列挙型がユニオン型として扱われるようになりました。計算された列挙型メンバーにも固有の型が作成され、列挙型の絞り込みやメンバーの型参照が全ての列挙型で可能になりました。
+
+- **`--moduleResolution bundler`**: バンドラー向けの新しいモジュール解決戦略が追加されました。Vite、esbuild、swc、Webpack、Parcelなどのモダンバンドラーに適した設定で、ECMAScriptモジュールとCommonJSのルックアップルールを融合しています。拡張子なしのインポートをサポートしつつ、パッケージの`export`条件では`import`を優先します。
+
+- **解決カスタマイズフラグ**: モジュール解決をカスタマイズするための新しいフラグが追加されました。`allowImportingTsExtensions`（TypeScript固有の拡張子でのインポートを許可）、`resolvePackageJsonExports`（`package.json`の`exports`フィールドを参照するように強制）、`resolvePackageJsonImports`（`package.json`の`imports`フィールドを参照するように強制）、`allowArbitraryExtensions`（任意の拡張子を持つファイルのインポートを許可）、`customConditions`（`exports`や`imports`フィールドの解決時に追加の条件を指定）などがあります。
+
+- **`--verbatimModuleSyntax`**: インポート削除（import elision）の動作を簡素化するフラグが追加されました。`type`修飾子のないインポート/エクスポートはそのまま残し、`type`修飾子のあるものは完全に削除するという「見たままが得られる」シンプルなルールを採用しています。これは`--importsNotUsedAsValues`と`--preserveValueImports`の代替として導入されました。
+
+- **`export type *`のサポート**: 型のみのエクスポートで`export * from "module"`や`export * as ns from "module"`構文をサポートするようになりました。例えば、`export type * as vehicles from "./vehicles"`のように使用できます。
+
+- **JSDocでの`@satisfies`サポート**: TypeScript 4.9で導入された`satisfies`演算子をJSDocでも使用できるようになりました。式の型を検証しつつ、その式の具体的な型情報を保持できます。例えば、`/** @satisfies {ConfigSettings} */ let myConfigSettings = { ... }`のように使用できます。
+
+- **JSDocでの`@overload`サポート**: 関数オーバーロードをJSDocで宣言できるようになりました。例えば、`/** @overload */ /** @param {string} value */ /** @return {void} */`のように使用できます。
+
+- **`--build`モードでの出力固有フラグの受け渡し**: `--declaration`、`--emitDeclarationOnly`、`--declarationMap`、`--sourceMap`、`--inlineSourceMap`などのフラグを`--build`モードで使用できるようになりました。これにより、開発ビルドと本番ビルドで異なる設定を簡単に適用できます。
+
+- **大文字小文字を区別しないインポートの並べ替え**: エディタでのインポート整理機能が大文字小文字を区別しない並べ替えをデフォルトでサポートするようになりました。これによりESLintなどの他のツールとの競合が減少します。
+
+- **網羅的な`switch`/`case`補完**: リテラル型の値に対する`switch`文を書く際、未カバーの`case`を自動的に補完する機能が追加されました。
+
+- **速度、メモリ、パッケージサイズの最適化**: TypeScript 4.9と比較して多くのパフォーマンス向上が実現しました。npmパッケージサイズが約41%削減（63.8MBから約37.4MB）され、名前空間からモジュールへの移行によるビルドツールの最適化、コンパイラ内部のオブジェクト型の均一化とデータ構造の最適化、文字列シリアル化のキャッシングなどが行われました。多くのコードベースで10〜20%の速度向上が期待できます。
+
+### 新しい構文
+
+```typescript
+// デコレータ
+class Person {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  @loggedMethod
+  greet() {
+    console.log(`Hello, my name is ${this.name}.`);
+  }
+}
+
+// デコレータ関数の定義
+function loggedMethod(originalMethod: any, context: ClassMethodDecoratorContext) {
+  const methodName = String(context.name);
+  
+  // 元のメソッドを置き換える新しい関数を返す
+  function replacementMethod(this: any, ...args: any[]) {
+    console.log(`LOG: Entering method '${methodName}'.`);
+    const result = originalMethod.call(this, ...args);
+    console.log(`LOG: Exiting method '${methodName}'.`);
+    return result;
+  }
+  
+  return replacementMethod;
+}
+
+// 複数のデコレータを同時に適用
+@bound @loggedMethod
+greet() {
+  console.log(`Hello, my name is ${this.name}.`);
+}
+
+// constタイプパラメータ
+// 従来の方法
+function getFirstElement<T>(arr: T[]) {
+  return arr[0];
+}
+// constなし: firstは string | number 型
+const first = getFirstElement(["hello", 42]);
+
+// constあり
+function getFirstElementExact<const T>(arr: T[]) {
+  return arr[0];
+}
+// constあり: firstExactは "hello" | 42 型（リテラル型）
+const firstExact = getFirstElementExact(["hello", 42]);
+
+// 配列の要素を正確に取得
+function getNamesExactly<const T extends HasNames>(arg: T): T["names"] {
+  return arg.names;
+}
+// namesは ["Alice", "Bob", "Charlie"] 型として推論される
+const names = getNamesExactly({ names: ["Alice", "Bob", "Charlie"] });
+```
+
+## TypeScript 5.1
+
+### 主な変更点
+
+- **undefined を返す関数の暗黙的な return の簡素化**: 関数が明示的に `undefined` を返すと宣言されている場合、return 文がなくても良くなりました。以前は `void` 型や `any` 型を返す関数のみが return 文なしで許可されていましたが、TypeScript 5.1からは `undefined` を返す関数も return 文が不要になりました。これにより、`undefined` を返す関数を引数として期待する関数に、return 文のない関数を渡せるようになりました。また、`--noImplicitReturns` オプション使用時も、`undefined` を返す関数は全てのコードパスで明示的な return が不要になりました。
+
+- **ゲッターとセッターの無関係な型**: `get` と `set` アクセサのペアで完全に無関係な型を指定できるようになりました。以前は `get` の型が `set` の型のサブタイプである必要がありましたが、明示的な型アノテーションがある場合に限り、完全に無関係な型が許可されるようになりました。例えば、DOM の `CSSStyleRule` の `style` プロパティは `CSSStyleDeclaration` として読み取られますが、書き込みは文字列のみ許可されるといった場合に便利です。
+
+- **JSX 要素と JSX タグ型間の型チェックの分離**: JSX タグの型チェックが改善され、より柔軟な戻り値型をサポートするようになりました。新しい `JSX.ElementType` 型が導入され、JSX 要素のタグとして有効なものを正確に指定できるようになりました。これにより、`Promise` を返すコンポーネントなど、`JSX.Element` 以外を返すコンポーネントが使用可能になりました。
+
+- **名前空間付き JSX 属性**: JSX で名前空間付き属性名（例：`a:b="hello"`）がサポートされるようになりました。名前空間付きタグ名は、最初のセグメントが小文字の名前の場合、`JSX.IntrinsicAttributes` で同様に検索されます。
+
+- **typeRoots がモジュール解決で参照されるように**: TypeScript の指定されたモジュール検索戦略でパスを解決できない場合、指定された `typeRoots` に対して相対的にパッケージを解決するようになりました。
+
+- **既存ファイルへの宣言の移動**: 新しいファイルだけでなく、既存のファイルへも宣言を移動できる機能がプレビュー版として追加されました。Visual Studio Code の最新バージョンで試用可能です。
+
+- **JSX タグのリンクカーソル**: JSX タグ名に対するリンク編集（ミラーカーソル）がサポートされるようになりました。これはエディタが複数の場所を同時に自動的に編集できる機能で、TypeScript と JavaScript の両方のファイルで動作します。
+
+- **@param JSDoc タグのスニペット補完**: TypeScript と JavaScript ファイルの両方で、`@param` タグを入力する際にスニペット補完が提供されるようになりました。これによりコードのドキュメント作成や JavaScript での JSDoc 型追加の手間が削減されます。
+
+- **最適化**: 不要な型のインスタンス化を回避する最適化、ユニオンリテラルの否定的なケースチェックの最適化、JSDoc 解析のためのスキャナー呼び出しの削減など、パフォーマンスが大幅に向上しました。
+
+- **破壊的変更**: TypeScript 5.1 は ECMAScript 2020 の機能を使用するため、Node.js 14.17 以降が最小ランタイム要件となりました。また、`typeRoots` オプションが指定されている場合、親ディレクトリの `node_modules/@types` フォルダの検索が行われなくなりました。
+
+### 新しい構文
+
+```typescript
+// undefined を返す関数の暗黙的な return の簡素化
+// TypeScript 5.1以前: エラー - 明示的な return 文が必要
+function f4(): undefined {
+  // no returns
+  // エラー: A function whose declared type is neither 'void' nor 'any' must return a value.
+}
+
+// TypeScript 5.1: OK - return 文が不要
+function f4(): undefined {
+  // no returns
+  // OK!
+}
+
+// ゲッターとセッターの無関係な型
+class Example {
+  // TypeScript 5.1以前: エラー - getter と setter の型が互換性がない
+  get size(): number {
+    return 42;
+  }
+  set size(value: string) {
+    console.log(`Setting size to: ${value}`);
+  }
+}
+
+// TypeScript 5.1: OK - 明示的な型アノテーションがある場合は無関係な型が許可される
+class Example {
+  // OK!
+  get size(): number {
+    return 42;
+  }
+  set size(value: string) {
+    console.log(`Setting size to: ${value}`);
+  }
+}
+
+// JSX 要素と JSX タグ型間の型チェックの分離
+// Promise を返すコンポーネント
+function AsyncComponent(): Promise<JSX.Element> {
+  return Promise.resolve(<div>Hello, world!</div>);
+}
+
+// TypeScript 5.1以前: エラー - AsyncComponent は JSX.Element を直接返さない
+// TypeScript 5.1: OK - JSX.ElementType として有効
+const element = <AsyncComponent />;
+
+// 名前空間付き JSX 属性
+// TypeScript 5.1以前: エラー - 名前空間付き属性はサポートされていない
+// TypeScript 5.1: OK
+const element = <div xml:space="preserve">Preserved whitespace</div>;
+```
+
+## TypeScript 5.2
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+
+## TypeScript 5.3
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+
+## TypeScript 5.4
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+
+## TypeScript 5.5
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+
+## TypeScript 5.6
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+
+## TypeScript 5.7
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+
+## TypeScript 5.8
+
+### 主な変更点
+
+- 
+
+### 新しい構文
+
+```typescript
+// サンプルコード
+```
+# TypeScript 5.2の主要な変更点
+
+## 1. `using` 宣言と明示的リソース管理
+TypeScript 5.2では、ECMAScriptの新機能である「明示的リソース管理」のサポートが追加されました。この機能は、リソースの自動クリーンアップを可能にします。
+- 新しい `Symbol.dispose` と `Symbol.asyncDispose` シンボル
+- 新しい `using` キーワードと `await using` 構文
+- `Disposable` と `AsyncDisposable` インターフェース
+- `DisposableStack` と `AsyncDisposableStack` クラス
+- `SuppressedError` エラータイプ
+
+## 2. デコレータメタデータ
+TypeScript 5.2では、ECMAScriptの新機能「デコレータメタデータ」が実装されました。デコレータ関数は、コンテキストオブジェクトの `metadata` プロパティを通じてメタデータにアクセスできるようになりました。
+- デコレータ関数のコンテキストオブジェクトに `metadata` プロパティが追加
+- クラスでは `Symbol.metadata` を通じてメタデータにアクセス可能
+
+## 3. 名前付きと匿名のタプル要素の混在
+以前のバージョンでは、タプル型のすべての要素にラベルを付けるか、すべての要素にラベルを付けないかのどちらかしか選択できませんでした。TypeScript 5.2では、この制限が解除され、ラベル付き要素と匿名要素を混在させることができるようになりました。
+
+## 4. 配列の共用体に対するメソッド使用の改善
+以前のバージョンでは、配列の共用体（例：`string[] | number[]`）に対してメソッドを呼び出すと型エラーが発生することがありました。TypeScript 5.2では、配列の共用体を特別なケースとして扱い、各メンバーの要素型から新しい配列型を構築してからメソッドを呼び出すようになりました。
+
+## 5. 型のみのインポートパスでのTypeScript実装ファイル拡張子のサポート
+TypeScriptでは、`allowImportingTsExtensions` の設定に関係なく、型のみのインポートパスで宣言ファイルと実装ファイルの両方の拡張子を含めることができるようになりました。これにより、`import type` 文で `.ts`、`.mts`、`.cts`、`.tsx` ファイル拡張子を使用できます。
+
+## 6. オブジェクトメンバーのコンマ補完
+オブジェクトに新しいプロパティを追加する際にコンマを忘れた場合、TypeScript 5.2では自動的に不足しているコンマを挿入しながらオブジェクトメンバーの補完を提供するようになりました。
+
+## 7. インライン変数リファクタリング
+TypeScript 5.2では、変数の内容をすべての使用箇所にインライン化するリファクタリング機能が追加されました。「インライン変数」リファクタリングを使用すると、変数が削除され、その変数のすべての使用箇所が初期化子に置き換えられます。
+
+## 8. 型互換性チェックの最適化
+再帰的な型の互換性チェックを最適化するために、TypeScript 5.2では単純な `Set` を使用して情報を追跡するようになりました。これにより、特定のテストケースでのパフォーマンスが33%以上向上しました。
+
+## 9. 破壊的変更と修正
+- `lib.d.ts` の変更：DOM用に生成される型が変更される可能性があります
+- `labeledElementDeclarations` が `undefined` 要素を持つ可能性：ラベルなし要素をサポートするための変更
+- 最近のNode.js設定では `module` と `moduleResolution` が一致する必要がある
+- マージされたシンボルのエクスポートチェックの一貫性：ambient contextでのエクスポート一貫性チェックの改善
+
+### `using` 宣言と明示的リソース管理のコード例
+
+```typescript
+// Disposableインターフェースを実装したクラス
+class FileResource implements Disposable {
+  #path: string;
+  
+  constructor(path: string) {
+    this.#path = path;
+    console.log(`ファイル ${path} を開きました`);
+  }
+
+  // Symbol.disposeメソッドを実装
+  [Symbol.dispose]() {
+    console.log(`ファイル ${this.#path} を閉じました`);
+    // ファイルクローズ処理
+  }
+
+  read() {
+    return `${this.#path} からの内容`;
+  }
+}
+
+function processFile() {
+  // using宣言により、スコープ終了時に自動的にdisposeメソッドが呼ばれる
+  using resource = new FileResource("example.txt");
+  
+  // リソースを使用
+  console.log(resource.read());
+  
+  // 関数終了時に自動的にresource[Symbol.dispose]()が呼ばれる
+}
+
+// 非同期バージョン
+class AsyncFileResource implements AsyncDisposable {
+  #path: string;
+  
+  constructor(path: string) {
+    this.#path = path;
+    console.log(`ファイル ${path} を開きました`);
+  }
+
+  // Symbol.asyncDisposeメソッドを実装
+  async [Symbol.asyncDispose]() {
+    console.log(`ファイル ${this.#path} を閉じています...`);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    console.log(`ファイル ${this.#path} を閉じました`);
+  }
+
+  async read() {
+    return `${this.#path} からの内容`;
+  }
+}
+
+async function processFileAsync() {
+  // await using宣言により、スコープ終了時に自動的にasyncDisposeメソッドが呼ばれる
+  await using resource = new AsyncFileResource("example.txt");
+  
+  // リソースを使用
+  console.log(await resource.read());
+  
+  // 関数終了時に自動的にawait resource[Symbol.asyncDispose]()が呼ばれる
+}
+```
+
+### デコレータメタデータのコード例
+
+```typescript
+// メタデータを定義
+const metadata = {
+  description: "ユーザークラス",
+  version: "1.0"
+};
+
+// デコレータ関数
+function ClassDecorator(value: string) {
+  return function(target: any, context: ClassDecoratorContext) {
+    // メタデータにアクセスして更新
+    context.metadata = { ...context.metadata, customValue: value };
+    
+    return target;
+  };
+}
+
+// デコレータを適用
+@ClassDecorator("重要なクラス")
+class User {
+  name: string;
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+// クラスのメタデータにアクセス
+console.log(User[Symbol.metadata]); // { customValue: "重要なクラス", ... }
+```
+
+### 名前付きと匿名のタプル要素の混在のコード例
+
+```typescript
+// TypeScript 5.2より前: エラー - 名前付き要素と匿名要素を混在できない
+// type MixedTuple = [first: string, number, third: boolean];
+
+// TypeScript 5.2: 名前付き要素と匿名要素の混在が可能
+type MixedTuple = [first: string, number, third: boolean];
+
+// 使用例
+const tuple: MixedTuple = ["Hello", 42, true];
+console.log(tuple[0]); // "Hello"
+console.log(tuple[1]); // 42
+console.log(tuple[2]); // true
+
+// 名前付き要素にはプロパティ名でもアクセス可能
+console.log(tuple.first); // "Hello"
+console.log(tuple.third); // true
+```
+
+### 配列の共用体に対するメソッド使用の改善のコード例
+
+```typescript
+// 配列の共用体型
+type ArrayUnion = string[] | number[];
+
+// TypeScript 5.2より前: エラー - 共通のメソッドを呼び出せない場合がある
+function processArrayBefore(arr: ArrayUnion) {
+  // エラー: Property 'map' does not exist on type 'string[] | number[]'.
+  // const mapped = arr.map(item => String(item));
+  
+  // 回避策: 型アサーションが必要
+  const mapped = (arr as any[]).map(item => String(item));
+  return mapped;
+}
+
+// TypeScript 5.2: 配列の共用体に対するメソッド呼び出しが改善
+function processArrayAfter(arr: ArrayUnion) {
+  // OK: 各メンバーの要素型から新しい配列型が構築される
+  const mapped = arr.map(item => String(item)); // (string | number)[]
+  return mapped;
+}
+```
+
+## TypeScript 5.2のその他の改善点
+
+- **型のみのインポートパスでのTypeScript実装ファイル拡張子のサポート**:
+  ```typescript
+  // TypeScript 5.2より前: エラー - .tsファイル拡張子を含めることができない
+  // import type { User } from "./models.ts";
+  
+  // TypeScript 5.2: .ts拡張子を含めることができる
+  import type { User } from "./models.ts";
+  ```
+
+- **インライン変数リファクタリング**:
+  ```typescript
+  // リファクタリング前
+  const greeting = "Hello, world!";
+  console.log(greeting);
+  
+  // 「インライン変数」リファクタリング後
+  console.log("Hello, world!");
+  ```
+# TypeScript 5.3の主要な変更点
+
+## 1. インポート属性（Import Attributes）
+TypeScript 5.3では、ECMAScriptの「インポート属性」提案の最新アップデートをサポートしています。これは以前の「インポート表明（import assertions）」の進化版で、`assert` キーワードの代わりに `with` キーワードを使用します。
+- モジュールの期待されるフォーマットについての情報をランタイムに提供できます
+- 静的インポートと動的インポート（`import()`）の両方で使用可能
+- 時間の経過とともに、古い `assert` 構文は非推奨となり、新しい `with` 構文に移行する予定です
+
+## 2. 型のインポートでの `resolution-mode` の安定サポート
+TypeScript 5.3では、`import type` 文での `resolution-mode` 属性が正式にサポートされるようになりました。これにより、型のインポート時に `import` または `require` のセマンティクスでモジュールを解決するかを制御できます。
+- `import type { TypeFromRequire } from "pkg" with { "resolution-mode": "require" };`
+- `import type { TypeFromImport } from "pkg" with { "resolution-mode": "import" };`
+- `import()` 型でも使用可能
+
+## 3. すべてのモジュールモードでの `resolution-mode` サポート
+以前は、`resolution-mode` は `moduleResolution` オプションが `node16` と `nodenext` の場合にのみ使用できましたが、TypeScript 5.3では `bundler`、`node10` などすべての `moduleResolution` オプションで適切に動作するようになりました。
+
+## 4. `switch (true)` での型の絞り込み
+TypeScript 5.3では、`switch (true)` 内の各 `case` 句の条件に基づいて型の絞り込みを行えるようになりました。これにより、複数の条件に基づいて型を絞り込む際に、より表現力豊かなコードを書くことができます。
+
+## 5. ブール値との比較による型の絞り込み
+TypeScript 5.3では、`true` または `false` との直接比較を行う条件式での型の絞り込みが改善されました。例えば、`if (isA(x) === true)` のような式で、型ガード関数 `isA` の結果に基づいて変数 `x` の型が正しく絞り込まれるようになりました。
+
+## 6. `Symbol.hasInstance` を通じた `instanceof` での型の絞り込み
+JavaScriptでは `instanceof` 演算子の動作をオーバーライドできますが、TypeScript 5.3では `[Symbol.hasInstance]` メソッドが型述語関数として宣言されている場合、`instanceof` 演算子の左側のテスト対象値がその型述語によって適切に絞り込まれるようになりました。
+
+## 7. インスタンスフィールドに対する `super` プロパティアクセスのチェック
+TypeScript 5.3では、`super` キーワードを通じてアクセスされる宣言がクラスフィールドである場合にエラーを検出するようになりました。これにより、実行時に発生する可能性のあるエラーを防止できます。
+
+## 8. 型のインレイヒントのインタラクティブ化
+TypeScriptのインレイヒントが型定義へのジャンプをサポートするようになり、コードをカジュアルにナビゲートしやすくなりました。
+
+## 9. `type` 自動インポートを優先する設定
+TypeScript 5.3では、型の位置で自動インポートを生成する際に `type` 修飾子を追加するかどうかをエディタ固有のオプションとして設定できるようになりました。Visual Studio Codeでは、「TypeScript › Preferences: Prefer Type Only Auto Imports」UIオプションまたは `typescript.preferences.preferTypeOnlyAutoImports` JSON設定オプションで有効にできます。
+
+## 10. JSDocパース処理をスキップすることによる最適化
+TypeScript 5.3では、`tsc` 経由で実行する際にJSDocのパース処理をスキップするようになりました。これにより、パース時間が短縮されるだけでなく、コメントを保存するためのメモリ使用量とガベージコレクションに費やされる時間も削減されます。全体として、コンパイル速度が向上し、`--watch` モードでのフィードバックがより迅速になります。
+
+## 11. 正規化されていない交差型の比較による最適化
+TypeScript 5.3では、型の比較時に元の交差型の形式を利用して高速なパス比較を行うようになりました。例えば、`SomeType & (Type1 | Type2 | ... | TypeN)` が `SomeType` に割り当て可能かどうかを確認する際、ターゲットが元の交差型の構成要素に存在するかどうかを迅速にチェックします。
+
+## 12. `tsserverlibrary.js` と `typescript.js` の統合
+TypeScript 5.3では、`tsserverlibrary.js` と `typescript.js` の2つのライブラリファイルが統合されました。`typescript.js` が `tsserverlibrary.js` の内容を含むようになり、`tsserverlibrary.js` は単に `typescript.js` を再エクスポートするようになりました。これにより、パッケージサイズが20.5%以上削減されました。
+
+## 13. 破壊的変更と修正
+- `lib.d.ts` の変更：DOM用に生成される型が変更される可能性があります
+- インスタンスプロパティに対する `super` アクセスのチェック：クラスフィールドへの `super` プロパティアクセスがエラーとして検出されるようになりました
+
+### インポート属性のコード例
+
+```typescript
+// 以前の構文（import assertions）
+import json from './data.json' assert { type: 'json' };
+
+// TypeScript 5.3の新しい構文（import attributes）
+import json from './data.json' with { type: 'json' };
+
+// 動的インポートでも使用可能
+const data = await import('./data.json', { with: { type: 'json' } });
+```
+
+### 型のインポートでの `resolution-mode` の使用例
+
+```typescript
+// CommonJSモジュールからの型のインポート
+import type { TypeFromRequire } from "some-package" with { "resolution-mode": "require" };
+
+// ESモジュールからの型のインポート
+import type { TypeFromImport } from "some-package" with { "resolution-mode": "import" };
+
+// 動的インポート型での使用
+type DynamicImport = import("some-package", { with: { "resolution-mode": "import" } }).SomeType;
+```
+
+### `switch (true)` での型の絞り込みの例
+
+```typescript
+function processValue(value: string | number | boolean) {
+  switch (true) {
+    case typeof value === "string":
+      // ここでvalueはstring型として絞り込まれる
+      console.log(value.toUpperCase());
+      break;
+    case typeof value === "number":
+      // ここでvalueはnumber型として絞り込まれる
+      console.log(value.toFixed(2));
+      break;
+    case typeof value === "boolean":
+      // ここでvalueはboolean型として絞り込まれる
+      console.log(value ? "真" : "偽");
+      break;
+  }
+}
+```
+
+### ブール値との比較による型の絞り込みの例
+
+```typescript
+function isString(value: any): value is string {
+  return typeof value === "string";
+}
+
+function processValue(value: unknown) {
+  // TypeScript 5.3より前: 型の絞り込みが正しく機能しない場合があった
+  if (isString(value) === true) {
+    // TypeScript 5.3: valueはstring型として正しく絞り込まれる
+    console.log(value.length);
+  }
+  
+  // 同様に、falseとの比較でも型の絞り込みが機能する
+  if (isString(value) === false) {
+    // valueはstring型ではないと絞り込まれる
+    console.log(typeof value);
+  }
+}
+```
+
+### `Symbol.hasInstance` を通じた `instanceof` での型の絞り込みの例
+
+```typescript
+class StringValidator {
+  static [Symbol.hasInstance](obj: unknown): obj is string {
+    return typeof obj === "string";
+  }
+}
+
+function processValue(value: unknown) {
+  if (value instanceof StringValidator) {
+    // TypeScript 5.3: valueはstring型として正しく絞り込まれる
+    console.log(value.length);
+  }
+}
+```
+
+### インスタンスフィールドに対する `super` プロパティアクセスのチェックの例
+
+```typescript
+class Base {
+  baseMethod() {
+    return "base method";
+  }
+}
+
+class Derived extends Base {
+  field = "instance field";
+  
+  constructor() {
+    super();
+    // TypeScript 5.3: エラーを検出 - インスタンスフィールドは初期化前にアクセスできない
+    // console.log(super.field); // エラー: Property 'field' does not exist on type 'Base'
+    
+    // 正しい使用法: スーパークラスのメソッドにアクセス
+    console.log(super.baseMethod()); // OK
+  }
+}
+```
+# TypeScript 5.4の主要な変更点
+
+## 1. クロージャ内での最終代入後の型の絞り込みの保持
+TypeScript 5.4では、変数の最終代入後のクロージャ内で型の絞り込み（narrowing）が保持されるようになりました。以前は、関数クロージャ内で変数の型が正しく絞り込まれないことがよくありました。
+
+例えば、以下のようなコードで：
+```typescript
+function getUrls(url: string | URL, names: string[]) {
+  if (typeof url === "string") {
+    url = new URL(url);
+  }
+  return names.map(name => {
+    url.searchParams.set("name", name); // 以前はエラー
+    return url.toString();
+  });
+}
+```
+
+以前のバージョンでは、`url`が`URL`オブジェクトであることが保証されているにもかかわらず、クロージャ内では`string | URL`型として扱われエラーが発生していました。TypeScript 5.4では、最終代入後の型情報が保持されるため、このコードは正しく動作します。
+
+## 2. `NoInfer` ユーティリティ型
+TypeScript 5.4では、型推論の候補から特定の型を除外するための新しい`NoInfer<T>`ユーティリティ型が導入されました。これは、ジェネリック関数の呼び出し時に型引数の推論をより細かく制御するのに役立ちます。
+
+例えば、以下のような関数で：
+```typescript
+function createStreetLight<C extends string>(colors: C[], defaultColor?: NoInfer<C>) {
+  // ...
+}
+```
+
+`defaultColor`パラメータを`NoInfer<C>`でラップすることで、`defaultColor`の型が`colors`配列に含まれる型に制限されます。これにより、`createStreetLight(["red", "yellow", "green"], "blue")`のような呼び出しは型エラーとなります。
+
+## 3. `Object.groupBy`と`Map.groupBy`のサポート
+TypeScript 5.4では、JavaScriptの新しい`Object.groupBy`と`Map.groupBy`静的メソッドの型定義が追加されました。これらのメソッドは、配列などの反復可能なオブジェクトの要素をグループ化するために使用されます。
+
+```typescript
+const array = [0, 1, 2, 3, 4, 5];
+const myObj = Object.groupBy(array, (num) => num % 2 === 0 ? "even" : "odd");
+// 結果: { even: [0, 2, 4], odd: [1, 3, 5] }
+```
+
+## 4. `--moduleResolution bundler`と`--module preserve`での`require()`呼び出しのサポート
+TypeScript 5.4では、`--moduleResolution bundler`設定と新しい`--module preserve`オプションを使用する際に`require()`呼び出しがサポートされるようになりました。これにより、条件付きエクスポート（conditional exports）を持つパッケージを使用する際の柔軟性が向上します。
+
+`--module preserve`を使用すると、ECMAScriptの`import`はそのまま出力され、`import ... = require(...)`は`require()`呼び出しとして出力されます。これにより、バンドラーやBunのようなランタイムがどのようにモジュールを解決するかをより正確にモデル化できます。
+
+## 5. インポート属性と表明のチェック
+TypeScript 5.4では、インポート属性と表明がグローバルな`ImportAttributes`型に対してチェックされるようになりました。これにより、ランタイムはインポート属性をより正確に記述できるようになります。
+
+```typescript
+// グローバルファイル内
+interface ImportAttributes {
+  type: "json";
+}
+
+// 他のモジュール内
+import * as ns from "foo" with { type: "not-json" }; // エラー
+```
+
+## 6. 不足しているパラメータを追加するためのクイックフィックス
+TypeScript 5.4では、引数が多すぎる関数呼び出しに対して、関数に新しいパラメータを追加するためのクイックフィックスが追加されました。これは、既存の関数に新しい引数を追加する必要がある場合に便利です。
+
+## 7. TypeScript 5.0で非推奨となった機能の今後の変更
+TypeScript 5.0で非推奨となった以下のオプションと動作は、TypeScript 5.4が最後のサポートバージョンとなります。TypeScript 5.5（2024年6月頃）からは、これらはハードエラーとなり、コードの移行が必要になります。
+
+- `charset`
+- `target: ES3`
+- `importsNotUsedAsValues`
+- `noImplicitUseStrict`
+- `noStrictGenericChecks`
+- `keyofStringsOnly`
+- `suppressExcessPropertyErrors`
+- `suppressImplicitAnyIndexErrors`
+- `out`
+- `preserveValueImports`
+- プロジェクト参照での`prepend`
+- 暗黙的にOS固有の`newLine`
+
+## 8. 条件型の制約のより正確なチェック
+TypeScript 5.4では、条件型の制約がより正確にチェックされるようになりました。これにより、以前は許可されていた特定のコードパターンがエラーとなる場合があります。
+
+## 9. 型変数とプリミティブ型の交差型のより積極的な削減
+TypeScript 5.4では、型変数とプリミティブ型の交差型がより積極的に削減されるようになりました。これにより、型の互換性チェックがより正確になります。
+
+## 10. テンプレート文字列の補間に対するチェックの改善
+TypeScript 5.4では、文字列がテンプレート文字列型のプレースホルダースロットに割り当て可能かどうかのチェックがより正確になりました。
+
+## 11. 型のみのインポートがローカル値と競合する場合のエラー
+`isolatedModules`設定の下で、型のみを参照するインポートがローカル値と競合する場合、TypeScript 5.4ではエラーが発生するようになりました。
+
+## 12. 列挙型の割り当て可能性の新しい制限
+TypeScript 5.4では、同じ名前を持つ2つの列挙型が互換性を持つためには、値が同一である必要があるという制限が追加されました。
+
+## 13. 列挙型メンバーの名前に関する制限
+TypeScript 5.4では、列挙型メンバーに`Infinity`、`-Infinity`、`NaN`という名前を使用できなくなりました。
+
+### クロージャ内での最終代入後の型の絞り込みの保持の例
+
+```typescript
+// TypeScript 5.4より前: エラー
+function processData(data: string | string[]) {
+  if (typeof data === "string") {
+    data = [data];
+  }
+  
+  // クロージャ内では型の絞り込みが保持されなかった
+  return data.map(item => {
+    // 以前はエラー: Property 'toUpperCase' does not exist on type 'string | string[]'.
+    return item.toUpperCase();
+  });
+}
+
+// TypeScript 5.4: 正しく動作
+function processData(data: string | string[]) {
+  if (typeof data === "string") {
+    data = [data]; // 最終代入でdata型はstring[]に確定
+  }
+  
+  // クロージャ内でも型の絞り込みが保持される
+  return data.map(item => {
+    return item.toUpperCase(); // OK: itemはstring型
+  });
+}
+```
+
+### `NoInfer` ユーティリティ型の例
+
+```typescript
+// NoInfer<T>を使用して型推論を制御
+function createStreetLight<C extends string>(
+  colors: C[],
+  defaultColor?: NoInfer<C> // defaultColorの型はcolorsに含まれる型に制限される
+) {
+  // 実装...
+  return { colors, defaultColor };
+}
+
+// 正しい使用例: defaultColorはcolorsに含まれる値
+const light1 = createStreetLight(["red", "yellow", "green"], "yellow"); // OK
+
+// 型エラー: "blue"はcolorsに含まれていない
+// const light2 = createStreetLight(["red", "yellow", "green"], "blue"); // エラー
+
+// NoInfer<T>がない場合、型推論は以下のように動作する
+function createStreetLightWithoutNoInfer<C extends string>(
+  colors: C[],
+  defaultColor?: C // defaultColorの型からCが推論される可能性がある
+) {
+  return { colors, defaultColor };
+}
+
+// "blue"が有効な値として受け入れられてしまう
+const light3 = createStreetLightWithoutNoInfer(["red", "yellow", "green"], "blue"); // OK
+```
+
+### `Object.groupBy`と`Map.groupBy`の例
+
+```typescript
+// Object.groupByの例
+const people = [
+  { name: "田中", age: 25 },
+  { name: "佐藤", age: 30 },
+  { name: "鈴木", age: 25 },
+  { name: "高橋", age: 40 },
+];
+
+// 年齢でグループ化
+const groupedByAge = Object.groupBy(people, person => person.age);
+console.log(groupedByAge);
+/*
+{
+  "25": [{ name: "田中", age: 25 }, { name: "鈴木", age: 25 }],
+  "30": [{ name: "佐藤", age: 30 }],
+  "40": [{ name: "高橋", age: 40 }]
+}
+*/
+
+// Map.groupByの例
+const numbers = [1, 2, 3, 4, 5, 6];
+const oddEvenMap = Map.groupBy(numbers, num => num % 2 === 0 ? "even" : "odd");
+console.log(oddEvenMap);
+/*
+Map {
+  "odd" => [1, 3, 5],
+  "even" => [2, 4, 6]
+}
+*/
+```
+
+### インポート属性のチェックの例
+
+```typescript
+// グローバル宣言ファイル内
+declare global {
+  interface ImportAttributes {
+    // インポート属性の型を定義
+    type: "json" | "css" | "text";
+  }
+}
+
+// 正しいインポート属性の使用
+import data from "./data.json" with { type: "json" }; // OK
+
+// 型エラー: "xml"は許可された属性タイプではない
+// import config from "./config.xml" with { type: "xml" }; // エラー
+```
+# TypeScript 5.5の主要な変更点
+
+## 1. 推論された型述語（Inferred Type Predicates）
+TypeScript 5.5では、特定の条件下で関数が型述語（type predicate）を返すことを自動的に推論できるようになりました。これにより、配列のフィルタリングなどの操作で型の絞り込みがより正確になります。
+
+例えば、以下のようなコードで：
+```typescript
+function makeBirdCalls(countries: string[]) {
+  // birds: Bird[]
+  const birds = countries
+    .map(country => nationalBirds.get(country))
+    .filter(bird => bird !== undefined);
+  
+  for (const bird of birds) {
+    bird.sing();  // 以前はエラー、今はOK
+  }
+}
+```
+
+以前のバージョンでは、`filter`関数が`undefined`値を除外しても、TypeScriptはそれを認識できませんでした。TypeScript 5.5では、`bird !== undefined`のような条件式から型述語が自動的に推論され、フィルタリング後の配列の型がより正確になります。
+
+TypeScriptは以下の条件が満たされると、関数が型述語を返すと推論します：
+1. 関数に明示的な戻り値の型またはアノテーションがない
+2. 関数が単一の`return`文を持ち、暗黙的な戻り値がない
+3. 関数がそのパラメータを変更しない
+4. 関数がパラメータの絞り込みに関連する`boolean`式を返す
+
+## 2. 定数インデックスアクセスの制御フロー絞り込み
+TypeScript 5.5では、`obj`と`key`の両方が実質的に定数である場合、`obj[key]`形式の式の型を絞り込めるようになりました。
+
+```typescript
+function f1(obj: Record<string, unknown>, key: string) {
+  if (typeof obj[key] === "string") {
+    // 以前はエラー、今はOK
+    obj[key].toUpperCase();
+  }
+}
+```
+
+上記の例では、`obj`も`key`も変更されないため、TypeScriptは`typeof`チェック後に`obj[key]`の型を`string`に絞り込むことができます。
+
+## 3. JSDoc `@import`タグ
+TypeScript 5.5では、JavaScriptファイル内で型チェックのみを目的とした型をインポートするための新しいJSDoc `@import`タグが導入されました。これにより、型のインポートがより簡潔になります。
+
+```javascript
+/** @import { SomeType } from "some-module" */
+/**
+ * @param {SomeType} myValue
+ */
+function doSomething(myValue) {
+  // ...
+}
+```
+
+これは単なるJSDocコメントであるため、ランタイム動作には影響しません。以前は、型のインポートには`import(...)`を使用する必要がありました：
+
+```javascript
+/**
+ * @param {import("./some-module").SomeType} myValue
+ */
+function doSomething(myValue) {
+  // ...
+}
+```
+
+## 4. 正規表現構文チェック
+TypeScript 5.5では、コード内の正規表現に対する基本的な構文チェックが行われるようになりました。これにより、一般的な間違いがランタイムエラーになる前に検出されます。
+
+```typescript
+let myRegex = /@robot(\s+(please|immediately)))? do some task/;
+//                                            ^
+// エラー: 予期しない ')'。バックスラッシュでエスケープする必要がありますか？
+```
+
+TypeScriptは、存在しないバックリファレンスや名前付きキャプチャグループの問題も検出できます。また、ターゲットのECMAScriptバージョンよりも新しい正規表現機能が使用されている場合にも警告します。
+
+## 5. 新しいECMAScript `Set`メソッドのサポート
+TypeScript 5.5では、ECMAScriptの`Set`型に提案されている新しいメソッドの型定義が追加されました。
+
+```typescript
+// 新しいSetメソッドの例
+let fruits = new Set(["apples", "bananas", "pears", "oranges"]);
+let applesAndBananas = new Set(["apples", "bananas"]);
+
+// union - 和集合
+console.log(fruits.union(oranges));
+
+// intersection - 積集合
+console.log(fruits.intersection(applesAndBananas));
+
+// difference - 差集合
+console.log(fruits.difference(oranges));
+
+// symmetricDifference - 対称差
+console.log(applesAndBananas.symmetricDifference(applesAndOranges));
+
+// isDisjointFrom - 互いに素かどうか
+console.log(applesAndBananas.isDisjointFrom(oranges));
+
+// isSubsetOf - 部分集合かどうか
+console.log(applesAndBananas.isSubsetOf(fruits));
+
+// isSupersetOf - 上位集合かどうか
+console.log(fruits.isSupersetOf(applesAndBananas));
+```
+
+これらのメソッドは元の`Set`を変更せず、新しい`Set`を返すか、ブール値を返します。
+
+## 6. 分離宣言（Isolated Declarations）
+TypeScript 5.5では、新しい`--isolatedDeclarations`オプションが導入されました。このオプションは、型チェッカーなしで宣言ファイル（`.d.ts`ファイル）を生成するツールをサポートするためのものです。
+
+このモードでは、モジュールのエクスポートに十分なアノテーションがない場合にエラーが報告されます。これにより、他のツールが宣言ファイルを生成する際に問題が発生しないようになります。
+
+```typescript
+export function foo() {
+//              ~~~
+// エラー: --isolatedDeclarationsでは、関数に明示的な戻り値の型アノテーションが必要です。
+  return x;
+}
+```
+
+このモードは、並列ビルドやより高速な宣言ファイル生成ツールの開発を可能にします。
+
+## 7. 設定ファイル用の`${configDir}`テンプレート変数
+TypeScript 5.5では、`tsconfig.json`や`jsconfig.json`ファイル内の特定のパスフィールドで使用できる新しいテンプレート変数`${configDir}`が導入されました。
+
+```json
+{
+  "compilerOptions": {
+    "typeRoots": [
+      "${configDir}/node_modules/@types",
+      "${configDir}/custom-types"
+    ],
+    "outDir": "${configDir}/dist"
+  }
+}
+```
+
+この変数は、設定ファイルを含むディレクトリに置き換えられます。これにより、共有設定ファイルを複数のプロジェクトで再利用する際に、相対パスの問題を解決できます。
+
+## 8. 宣言ファイル生成のための`package.json`依存関係の参照
+TypeScript 5.5では、宣言ファイル生成時に`package.json`の`dependencies`（または`peerDependencies`と`optionalDependencies`）を参照するようになりました。これにより、以前は次のようなエラーメッセージが表示されていた問題が解決されます：
+
+```
+The inferred type of "X" cannot be named without a reference to "Y". This is likely not portable. A type annotation is necessary.
+```
+
+## 9. エディタとウォッチモードの信頼性向上
+TypeScript 5.5では、`--watch`モードとTypeScriptのエディタ統合の信頼性が向上しました。主な改善点は以下の通りです：
+
+- 設定ファイルのエディタエラーの正確な更新
+- 即時書き込みの後に削除を適切に処理
+- 失敗した解決でのシンボリックリンクの追跡
+- プロジェクト参照が自動インポートに貢献
+
+## 10. パフォーマンスとサイズの最適化
+TypeScript 5.5では、以下のようなパフォーマンスとサイズの最適化が行われました：
+
+- 言語サービスと公開APIでのオブジェクトのモノモーフィック化（5-8%のビルド時間短縮、言語サービス操作が10-20%高速化）
+- 制御フローノードのモノモーフィック化（チェック時間が約1%削減）
+- 制御フローグラフの最適化（特定のコードベースでビルド時間が最大2%削減）
+- `transpileModule`と`transpileDeclaration`でのチェックのスキップ（ビルド時間が約2倍高速化）
+- TypeScriptパッケージサイズの削減（ディスク上のサイズが30.2MBから20.4MBに、パックサイズが5.5MBから3.7MBに削減）
+- 宣言エミットでのノードの再利用
+- 判別共用体からのコンテキスト型のキャッシング
+
+## 11. ECMAScriptモジュールからのAPIの簡単な利用
+以前は、Node.jsでECMAScriptモジュールを記述する場合、`typescript`パッケージからの名前付きインポートは利用できませんでした。TypeScript 5.5では、この問題が修正され、ECMAScriptモジュールで名前付きインポートが使用できるようになりました。
+
+```typescript
+import { createSourceFile } from "typescript"; // ✅ 現在は動作します
+import * as ts from "typescript";
+ts.createSourceFile // ✅ 現在は動作します
+```
+
+## 12. `transpileDeclaration` API
+TypeScript 5.5では、単一のTypeScriptファイルから宣言ファイルを生成するための新しいAPI `transpileDeclaration`が追加されました。これは`transpileModule`に似ていますが、宣言ファイルの生成に特化しています。
+
+この関数は、`isolatedDeclarations`モードの下でのすべてのファイルの宣言エミットを並列化するために使用できます。
+
+## 13. 注目すべき動作の変更
+TypeScript 5.5では、以下のような注目すべき動作の変更があります：
+
+- TypeScript 5.0で非推奨となった機能の無効化
+- `lib.d.ts`の変更
+- デコレータのより厳密な解析
+- `undefined`は定義可能な型名ではなくなりました
+- 参照ディレクティブ宣言エミットの簡素化
+
+### 推論された型述語の例
+
+```typescript
+// 以前のTypeScript: 型の絞り込みが不十分
+function getValidItems<T>(items: (T | undefined)[]) {
+  // filter後も型は(T | undefined)[]のまま
+  const validItems = items.filter(item => item !== undefined);
+  
+  // エラー: Object is possibly 'undefined'
+  // validItems.forEach(item => console.log(item.toString()));
+}
+
+// TypeScript 5.5: 型述語が自動的に推論される
+function getValidItems<T>(items: (T | undefined)[]) {
+  // filter後の型はT[]に絞り込まれる
+  const validItems = items.filter(item => item !== undefined);
+  
+  // OK: itemはundefinedではないことが保証される
+  validItems.forEach(item => console.log(item.toString()));
+}
+```
+
+### 定数インデックスアクセスの制御フロー絞り込みの例
+
+```typescript
+function processConfig(config: Record<string, unknown>, key: string) {
+  // TypeScript 5.5より前: エラー
+  if (typeof config[key] === "string") {
+    // エラー: Object is of type 'unknown'
+    // config[key].toLowerCase();
+  }
+  
+  // TypeScript 5.5: 正しく動作
+  if (typeof config[key] === "string") {
+    // OK: config[key]の型がstringに絞り込まれる
+    config[key].toLowerCase();
+  }
+}
+```
+
+### JSDoc `@import`タグの例
+
+```javascript
+// 以前のJavaScriptでの型インポート
+/**
+ * @param {import("./types").User} user
+ * @param {import("./types").Options} options
+ * @returns {import("./types").Result}
+ */
+function processUser(user, options) {
+  // ...
+}
+
+// TypeScript 5.5: @importタグを使用
+/** @import { User, Options, Result } from "./types" */
+/**
+ * @param {User} user
+ * @param {Options} options
+ * @returns {Result}
+ */
+function processUser(user, options) {
+  // ...
+}
+```
+
+### 正規表現構文チェックの例
+
+```typescript
+// TypeScript 5.5で検出されるエラー
+let invalidRegex = /a(b|c]d/;
+//                     ^
+// エラー: 文字クラスが閉じられていません。']'が必要です。
+
+let invalidBackreference = /(\w+) \2/;
+//                                ^
+// エラー: バックリファレンス \2 は存在しないグループを参照しています。
+
+// 名前付きキャプチャグループの問題も検出
+let invalidNamedGroup = /(?<name>\w+) (?<different>\w+) \k<name2>/;
+//                                                        ^
+// エラー: \k<name2> は存在しない名前付きキャプチャグループを参照しています。
+```
+
+### 新しいECMAScript `Set`メソッドの例
+
+```typescript
+// 集合演算の例
+const developers = new Set(["Alice", "Bob", "Charlie"]);
+const designers = new Set(["Diana", "Eve", "Bob"]);
+
+// 和集合 - 両方の集合の要素を含む新しい集合
+const team = developers.union(designers);
+console.log([...team]); // ["Alice", "Bob", "Charlie", "Diana", "Eve"]
+
+// 積集合 - 両方の集合に共通する要素のみを含む新しい集合
+const crossFunctional = developers.intersection(designers);
+console.log([...crossFunctional]); // ["Bob"]
+
+// 差集合 - 最初の集合から2番目の集合の要素を除いた新しい集合
+const developersOnly = developers.difference(designers);
+console.log([...developersOnly]); // ["Alice", "Charlie"]
+
+// 対称差 - 片方の集合にのみ存在する要素を含む新しい集合
+const exclusiveMembers = developers.symmetricDifference(designers);
+console.log([...exclusiveMembers]); // ["Alice", "Charlie", "Diana", "Eve"]
+
+// 互いに素かどうか（共通要素がないかどうか）
+const projectA = new Set(["Alice", "Charlie"]);
+const projectB = new Set(["Diana", "Eve"]);
+console.log(projectA.isDisjointFrom(projectB)); // true（共通要素なし）
+console.log(developers.isDisjointFrom(designers)); // false（"Bob"が共通）
+
+// 部分集合かどうか
+const frontendDevs = new Set(["Alice", "Bob"]);
+console.log(frontendDevs.isSubsetOf(developers)); // true
+console.log(designers.isSubsetOf(developers)); // false
+
+// 上位集合かどうか
+console.log(developers.isSupersetOf(frontendDevs)); // true
+console.log(developers.isSupersetOf(designers)); // false
+```
+# TypeScript 5.6の主要な変更点
+
+## 1. Nullishチェックとtruthyチェックの禁止
+
+TypeScript 5.6では、常に特定の方法で評価される条件式に対して警告するようになりました。これにより、意図しない動作を引き起こす可能性のある一般的なミスを検出できます。
+
+例えば、以下のようなコードは常に真として評価されるため、エラーが表示されるようになりました：
+
+```typescript
+// 正規表現オブジェクトを直接条件式で使用
+if (/0x[0-9a-f]/) {
+  // このブロックは常に実行される
+}
+
+// アロー関数と比較演算子の混同
+if (x => 0) {
+  // このブロックは常に実行される
+}
+
+// Nullishコアレッシング演算子（??）と比較演算子の優先順位の混同
+function isValid(value: string | number, options: any) {
+  return value < options.max ?? 100;
+  // これは (value < options.max) ?? 100 として解析される
+}
+```
+
+この機能により、多くのバグを早期に発見できるようになります。ただし、`true`、`false`、`0`、`1`などの値は、常に真または偽として評価されるにもかかわらず、一般的なイディオムとして使用されるため、引き続き許可されています。
+
+## 2. イテレータヘルパーメソッド
+
+TypeScript 5.6では、ECMAScriptの提案に基づいて、イテレータオブジェクトに多くの便利なメソッドが追加されました。これにより、配列の`map`、`filter`などのメソッドと同様の操作をイテレータに対して行えるようになります。
+
+```typescript
+function* positiveIntegers() {
+  let i = 1;
+  while (true) {
+    yield i;
+    i++;
+  }
+}
+
+const evenNumbers = positiveIntegers().map(x => x * 2);
+
+// 出力:
+//    2
+//    4
+//    6
+//    8
+//   10
+for (const value of evenNumbers.take(5)) {
+  console.log(value);
+}
+```
+
+`Map`や`Set`の`keys()`、`values()`、`entries()`メソッドも同様に拡張されています：
+
+```typescript
+function invertKeysAndValues<K, V>(map: Map<K, V>): Map<V, K> {
+  return new Map(
+    map.entries().map(([k, v]) => [v, k])
+  );
+}
+```
+
+また、新しい`Iterator`オブジェクトを拡張することもできます：
+
+```typescript
+class Zeroes extends Iterator<number> {
+  next() {
+    return { value: 0, done: false } as const;
+  }
+}
+
+const zeroes = new Zeroes();
+const ones = zeroes.map(x => x + 1);
+```
+
+既存の`Iterable`や`Iterator`を新しい型に適応させるには、`Iterator.from`を使用します：
+
+```typescript
+Iterator.from(...).filter(someFunction);
+```
+
+TypeScript 5.6では、これらの新しいイテレータ機能をサポートするために、`IteratorObject`という新しい型が導入されました。
+
+## 3. 厳格なビルトインイテレータチェック（および`--strictBuiltinIteratorReturn`）
+
+TypeScript 5.6では、イテレータの`next()`メソッドが返す`IteratorResult`型の安全性を向上させるために、新しい`BuiltinIteratorReturn`型と`--strictBuiltinIteratorReturn`フラグが導入されました。
+
+これにより、以下のようなコードでの型の安全性が向上します：
+
+```typescript
+function* uppercase(iter: Iterator<string, BuiltinIteratorReturn>) {
+  while (true) {
+    const { value, done } = iter.next();
+    
+    // エラー: 'value'は 'undefined' の可能性があります
+    // エラー: 'toUppercase'プロパティは'string'型に存在しません。'toUpperCase'を使用しましたか？
+    yield value.toUppercase();
+    
+    if (done) {
+      return;
+    }
+  }
+}
+```
+
+`--strictBuiltinIteratorReturn`が有効な場合、`BuiltinIteratorReturn`は`undefined`型になり、より厳格な型チェックが行われます。
+
+## 4. 任意のモジュール識別子のサポート
+
+TypeScript 5.6では、JavaScriptがサポートする任意の文字列リテラルをモジュールの識別子として使用できるようになりました。これにより、有効な識別子名ではない文字列をエクスポートやインポートに使用できます：
+
+```typescript
+const banana = "🍌";
+export { banana as "🍌" };
+
+// 別のファイルでインポート
+import { "🍌" as banana } from "./foo"
+
+function eat(food: string) {
+  console.log("Eating", food);
+};
+
+eat(banana);
+```
+
+この機能は、他の言語との相互運用性（通常はJavaScript/WebAssembly境界を介して）や、esbuildなどのコード生成ツールで役立ちます。
+
+## 5. `--noUncheckedSideEffectImports`オプション
+
+TypeScript 5.6では、副作用のみを目的としたインポート（サイドエフェクトインポート）に対するチェックを強化する新しいコンパイラオプション`--noUncheckedSideEffectImports`が導入されました。
+
+```typescript
+import "oops-this-module-does-not-exist";
+// エラー: モジュール 'oops-this-module-does-not-exist' またはその型宣言が見つかりません。
+```
+
+このオプションを有効にすると、サイドエフェクトインポートに対して、対応するソースファイルが見つからない場合にエラーが発生します。これにより、タイプミスなどの潜在的な問題を早期に発見できます。
+
+CSSファイルなどのアセットをインポートする場合は、グローバルファイルにワイルドカード指定子を持つアンビエントモジュール宣言を作成することで対応できます：
+
+```typescript
+// ./src/globals.d.ts
+// すべてのCSSファイルをモジュールインポートとして認識
+declare module "*.css" {}
+```
+
+## 6. `--noCheck`オプション
+
+TypeScript 5.6では、すべての入力ファイルの型チェックをスキップする新しいコンパイラオプション`--noCheck`が導入されました。これにより、出力ファイルを生成するために必要なセマンティック解析のみを行い、不要な型チェックを回避できます。
+
+このオプションは、JavaScriptファイルの生成と型チェックを別々のフェーズとして実行する場合に役立ちます。例えば、開発中は`tsc --noCheck`を実行し、完全な型チェックは`tsc --noEmit`で行うことができます。
+
+また、`--isolatedDeclarations`に準拠したプロジェクトでは、型チェックなしで宣言ファイルを迅速に生成することもできます。
+
+## 7. 中間エラーがある場合でも`--build`を許可
+
+TypeScript 5.6では、依存関係に中間エラーがある場合でも、`--build`モードでビルドを続行できるようになりました。これにより、依存関係のアップグレードがより柔軟になります。
+
+以前は、依存プロジェクトにエラーがあると、そのプロジェクトに依存する「下流」プロジェクトはチェックもビルドもできませんでした。TypeScript 5.6では、中間エラーがあっても、エラーは一貫して報告され、出力ファイルは最善の努力で生成されます。
+
+最初のエラーでビルドを停止したい場合は、新しいフラグ`--stopOnBuildErrors`を使用できます。
+
+## 8. エディタでのリージョン優先診断
+
+TypeScript 5.6では、「リージョン優先診断」または「リージョン優先チェック」と呼ばれる新機能が導入されました。これにより、大きなファイルでの編集応答性が大幅に向上します。
+
+従来、TypeScriptの言語サービスがファイルの診断（エラー、提案、非推奨など）を要求すると、通常、ファイル全体をチェックする必要がありました。これは大きなファイルでは遅延を引き起こす可能性があります。
+
+新機能では、エディタは関連するファイルの特定のリージョン（通常はユーザーに現在表示されている部分）を提供できるようになりました。TypeScript言語サーバーは、リージョン用と全体用の2セットの診断を提供できます。これにより、大きなファイルでの編集がはるかに応答性が高くなります。
+
+例えば、TypeScript自体の`checker.ts`でのテストでは、完全なセマンティック診断応答に3330msかかりましたが、最初のリージョンベースの診断応答は143msでした。
+
+## 9. 粒度の細かいコミット文字
+
+TypeScript 5.6の言語サービスは、各補完項目に独自の「コミット文字」を提供するようになりました。コミット文字とは、入力時に現在提案されている補完項目を自動的に確定する特定の文字です。
+
+例えば、以下のコードで：
+
+```typescript
+declare let food: {
+  eat(): any;
+}
+let f = (foo
+```
+
+カーソルが`foo`の後にある場合、次に入力する文字によって、エディタが自動補完する内容が変わる可能性があります。ピリオド（`.`）を入力すると、エディタは`food`変数で補完し、カンマ（`,`）を入力すると、アロー関数のパラメータを記述している可能性があります。
+
+TypeScriptは現在、各補完項目に対して安全にコミットできる文字を明示的にリストアップします。これにより、エディタの自動補完機能が向上します。
+
+## 10. 自動インポートの除外パターン
+
+TypeScript 5.6の言語サービスでは、特定のモジュールからの自動インポート候補をフィルタリングするための正規表現パターンのリストを指定できるようになりました。
+
+例えば、`lodash`のような「ディープ」インポートをすべて除外したい場合は、Visual Studio Codeで以下の設定を行うことができます：
+
+```json
+{
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "^lodash/.*$"
+  ]
+}
+```
+
+または、パッケージのエントリポイントからのインポートを禁止することもできます：
+
+```json
+{
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "^lodash$"
+  ]
+}
+```
+
+`node:`インポートを回避するには：
+
+```json
+{
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "^node:"
+  ]
+}
+```
+
+## 11. 注目すべき動作の変更
+
+### `lib.d.ts`の更新
+DOMに対して生成される型が型チェックに影響を与える可能性があります。
+
+### `.tsbuildinfo`が常に書き込まれる
+中間エラーがある場合でも依存関係のあるプロジェクトのビルドを続行できるようにするため、また、コマンドラインで`--noCheck`をサポートするために、TypeScriptは`--build`呼び出しのすべてのプロジェクトに対して`.tsbuildinfo`ファイルを常に出力するようになりました。
+
+### `node_modules`内のファイル拡張子と`package.json`の尊重
+TypeScript 5.6では、`node_modules`内のファイルの形式情報を収集し、すべての`module`モード（`amd`、`umd`、`system`を除く）でそれを使用して曖昧さを解決します。形式固有のファイル拡張子（`.mts`と`.cts`）はどこでも見つかった場所で尊重され、`package.json`の`"type"`フィールドは`module`設定に関係なく、`node_modules`依存関係内で参照されます。
+
+### 計算プロパティに対する`override`チェックの修正
+以前は、`override`でマークされた計算プロパティは、基底クラスのメンバーの存在を正しくチェックしていませんでした。同様に、`noImplicitOverride`を使用していても、計算プロパティに`override`修飾子を追加し忘れた場合にエラーが発生しませんでした。TypeScript 5.6では、両方のケースで計算プロパティが正しくチェックされるようになりました。
+
+### Nullishチェックとtruthyチェックの例
+
+```typescript
+// TypeScript 5.6より前: 警告なし
+if (/0x[0-9a-f]/) {
+  console.log("このブロックは常に実行されます");
+}
+
+// TypeScript 5.6: 警告が表示される
+if (/0x[0-9a-f]/) {
+  // エラー: この条件は常に'true'と評価されます
+  console.log("このブロックは常に実行されます");
+}
+
+// 正しい使用法
+const pattern = /0x[0-9a-f]/;
+if (pattern.test(someString)) {
+  console.log("パターンにマッチしました");
+}
+```
+
+### イテレータヘルパーメソッドの例
+
+```typescript
+// 無限イテレータを作成し、操作する
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+// 最初の10個のフィボナッチ数を取得
+const first10Fibonacci = fibonacci().take(10);
+for (const num of first10Fibonacci) {
+  console.log(num); // 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+}
+
+// 偶数のフィボナッチ数のみをフィルタリング
+const evenFibonacci = fibonacci()
+  .filter(n => n % 2 === 0)
+  .take(5);
+for (const num of evenFibonacci) {
+  console.log(num); // 0, 2, 8, 34, 144
+}
+
+// マップとリデュースの組み合わせ
+const sum = fibonacci()
+  .take(10)
+  .map(n => n * 2)
+  .reduce((acc, n) => acc + n, 0);
+console.log(sum); // 2 * (0 + 1 + 1 + 2 + 3 + 5 + 8 + 13 + 21 + 34) = 176
+```
+
+### 任意のモジュール識別子の例
+
+```typescript
+// モジュール定義
+// fruits.ts
+export const apple = "🍎";
+export const banana = "🍌";
+export const orange = "🍊";
+
+// 特殊な識別子でエクスポート
+export { apple as "🍎" };
+export { banana as "🍌" };
+export { orange as "🍊" };
+
+// 別のファイルでインポート
+// main.ts
+import { "🍎" as apple, "🍌" as banana } from "./fruits";
+
+console.log(`I have an ${apple} and a ${banana}`);
+// 出力: I have an 🍎 and a 🍌
+
+// 数値や特殊文字を含む識別子も使用可能
+export { someFunction as "function-1" };
+export { otherFunction as "special!@#" };
+
+import { "function-1" as func1 } from "./module";
+import { "special!@#" as specialFunc } from "./module";
+```
+
