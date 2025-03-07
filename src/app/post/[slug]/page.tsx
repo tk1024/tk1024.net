@@ -50,7 +50,14 @@ const components = {
     <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl my-4" {...props} />
   ),
   a: (props: MDXComponentProps & { href?: string }) => <a className="text-indigo-700 underline" {...props} />,
-  img: (props: MDXComponentProps & { src?: string; alt?: string }) => <img className="w-full" {...props} />,
+  img: (props: MDXComponentProps & { src?: string; alt?: string }) => {
+    // Use next/image for better performance when src is available
+    if (props.src) {
+      return <Image className="w-full" src={props.src} alt={props.alt || ''} width={1200} height={630} />;
+    }
+    // Fallback to standard img with alt
+    return <img className="w-full" {...props} alt={props.alt || ''} />;
+  },
   blockquote: (props: MDXComponentProps) => {
     return (
       <blockquote className="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 max-w-3xl">
