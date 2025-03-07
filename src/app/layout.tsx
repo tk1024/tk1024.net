@@ -18,11 +18,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${inter.className}`}>
-        <div className="min-h-screen flex flex-col lg:block">
+        <div className="min-h-screen">
           <div className="w-full bg-indigo-700 lg:fixed lg:top-0 lg:left-0 lg:bottom-0 lg:w-[280px] lg:z-10">
             <Header />
           </div>
-          <div className="w-full lg:ml-[280px] lg:p-10 p-4 box-border overflow-x-auto">
+          <div className="w-full p-4 lg:p-10 lg:ml-[280px] box-border overflow-x-auto">
             {children}
           </div>
         </div>
