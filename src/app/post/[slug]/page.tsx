@@ -51,12 +51,8 @@ const components = {
   ),
   a: (props: MDXComponentProps & { href?: string }) => <a className="text-indigo-700 underline" {...props} />,
   img: (props: MDXComponentProps & { src?: string; alt?: string }) => {
-    // Use next/image for better performance when src is available
-    if (props.src) {
-      return <Image className="w-full" src={props.src} alt={props.alt || ''} width={1200} height={630} />;
-    }
-    // Fallback to standard img with alt
-    return <img className="w-full" {...props} alt={props.alt || ''} />;
+    // Always use next/image for better performance
+    return <Image className="w-full" src={props.src || ''} alt={props.alt || ''} width={1200} height={630} />;
   },
   blockquote: (props: MDXComponentProps) => {
     return (
