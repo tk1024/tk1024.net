@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${inter.className}`}>
-        <div className="min-h-screen">
+        <div className="min-h-screen flex flex-col lg:block">
           <div className="w-full bg-indigo-700 lg:fixed lg:top-0 lg:left-0 lg:bottom-0 lg:w-[280px] lg:z-10">
             <Header />
           </div>
