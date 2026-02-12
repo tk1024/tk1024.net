@@ -13,7 +13,7 @@
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
     "gray-matter": "^4.0.3",
-    "next": "15.1.7",
+    "next": "15.1.11",
     "next-mdx-remote": "^4.4.1",
     "react": "19.0.0-rc-65a56d0e-20241020",
     "react-dom": "19.0.0-rc-65a56d0e-20241020",
