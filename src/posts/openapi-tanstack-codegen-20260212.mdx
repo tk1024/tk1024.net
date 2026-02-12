@@ -1,0 +1,466 @@
+---
+title: OpenAPI から TanStack Query のコード生成を比較（2026-02）
+date: "2026-02-12 23:30:00"
+description: OpenAPIからTanStack Query向けコードを自動生成する主要ライブラリを、型表現・生成物構造・運用性で実測比較
+author: GPT-5 Codex
+tags: [TypeScript, OpenAPI, TanStack Query, codegen, API]
+featuredImage:
+---
+
+# OpenAPI -> TanStack Query 自動生成ライブラリ比較（2026-02）
+
+## 先に結論
+
+2026年2月時点の第一候補は次の3つ。
+
+- `orval`
+- `@hey-api/openapi-ts`
+- `@openapi-qraft/cli`
+
+`@7nohe/openapi-react-query-codegen` は今回の検証条件（Node.js `v24.10.0`）で生成が途中失敗したため、安定比較対象としては保留。
+
+## 検証条件
+
+- Date: 2026-02-12
+- Node.js: `v24.10.0`
+- npm: `11.6.1`
+- 比較spec:
+  - `openapi.sample.yaml`（最小構成）
+  - `openapi.rich.yaml`（enum / oneOf / discriminator）
+  - `openapi.edge.yaml`（よく使う10機能）
+
+---
+
+## 1. 型生成比較（enum / union）
+
+### enum 出力
+
+**orval**（`generated-rich/orval/client.schemas.ts`）
+```ts
+export type AnimalStatus = typeof AnimalStatus[keyof typeof AnimalStatus];
+
+export const AnimalStatus = {
+  active: 'active',
+  archived: 'archived',
+} as const;
+```
+
+**@hey-api/openapi-ts**（`generated-rich/heyapi/types.gen.ts`）
+```ts
+export type AnimalStatus = 'active' | 'archived';
+```
+
+**@openapi-qraft/cli（default）**（`generated-rich/qraft/schema.ts`）
+```ts
+UserStatus: "active" | "suspended";
+```
+
+**@openapi-qraft/cli（`--enum`）**（`generated-rich/qraft-enum/schema.ts`）
+```ts
+export enum AnimalStatus {
+  active = "active",
+  archived = "archived"
+}
+```
+
+**@7nohe/openapi-react-query-codegen**（`generated-rich/7nohe/requests/types.gen.ts`）
+```ts
+export type AnimalStatus = 'active' | 'archived';
+```
+
+### union / discriminator（oneOf）
+
+**orval**（`generated-rich/orval/client.schemas.ts`）
+```ts
+export type Animal = Cat | Dog;
+```
+
+**@hey-api/openapi-ts**（`generated-rich/heyapi/types.gen.ts`）
+```ts
+export type Animal = ({
+    type: 'cat';
+} & Cat) | ({
+    type: 'dog';
+} & Dog);
+```
+
+**@openapi-qraft/cli**（`generated-rich/qraft/schema.ts`）
+```ts
+Animal: components["schemas"]["Cat"] | components["schemas"]["Dog"];
+```
+
+**@7nohe/openapi-react-query-codegen**（`generated-rich/7nohe/requests/types.gen.ts`）
+```ts
+export type Animal = Cat | Dog;
+```
+
+---
+
+## 2. mutation / query key 比較
+
+### mutation
+
+**orval**（`generated-rich/orval/client.ts`）
+```ts
+const mutationKey = ['createAnimal'];
+export const useCreateAnimal = <TError = unknown, TContext = unknown>(...) => {
+  return useMutation(getCreateAnimalMutationOptions(options), queryClient);
+}
+```
+
+**@hey-api/openapi-ts**（`generated-rich/heyapi/@tanstack/react-query.gen.ts`）
+```ts
+export const createAnimalMutation = (...): UseMutationOptions<...> => {
+  const mutationOptions: UseMutationOptions<...> = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createAnimal({ ...options, ...fnOptions, throwOnError: true });
+      return data;
+    }
+  };
+  return mutationOptions;
+};
+```
+
+**@openapi-qraft/cli**（`generated-rich/qraft/services/AnimalsService.ts`）
+```ts
+useMutation<TVariables extends CreateAnimalBody, TContext = unknown>(...): UseMutationResult<...>;
+useMutationState<TContext = unknown, TResult = MutationState<...>>(...): TResult[];
+getMutationCache(): MutationCache;
+```
+
+**@7nohe/openapi-react-query-codegen**
+- 今回は `Error: Variable declaration not found` で停止し、hook生成結果を評価不能
+
+### query key
+
+**orval**（`generated-rich/orval/client.ts`）
+```ts
+export const getListAnimalsQueryKey = (params?: ListAnimalsParams,) => {
+  return ['/animals', ...(params ? [params] : [])] as const;
+}
+```
+
+**@hey-api/openapi-ts**（`generated-rich/heyapi/@tanstack/react-query.gen.ts`）
+```ts
+export const listAnimalsQueryKey = (options?: Options<ListAnimalsData>) =>
+  createQueryKey('listAnimals', options);
+```
+
+**@openapi-qraft/cli**（`generated-rich/qraft/services/AnimalsService.ts`）
+```ts
+getQueryKey(parameters: DeepReadonly<ListAnimalsParameters> | void): ServiceOperationQueryKey<...>;
+getInfiniteQueryKey(parameters: DeepReadonly<ListAnimalsParameters> | void): ServiceOperationInfiniteQueryKey<...>;
+```
+
+---
+
+## 3. export 構造比較
+
+**orval**
+- `generated-rich/orval/client.ts`
+- `generated-rich/orval/client.schemas.ts`
+- `generated-rich/orval/client.msw.ts`
+
+**@hey-api/openapi-ts**（`generated-rich/heyapi/index.ts`）
+```ts
+export { createAnimal, deleteAnimal, getAnimalById, listAnimals, type Options, updateAnimal } from './sdk.gen';
+export type { Animal, AnimalStatus, ... } from './types.gen';
+```
+
+**@openapi-qraft/cli**（`generated-rich/qraft/index.ts`）
+```ts
+export type { $defs, paths, components, operations, webhooks } from "./schema";
+export { services } from "./services/index";
+export type { Services } from "./services/index";
+export { createAPIClient } from "./create-api-client";
+```
+
+**@7nohe/openapi-react-query-codegen**（`generated-rich/7nohe/requests/index.ts`）
+```ts
+export * from './schemas.gen';
+export * from './services.gen';
+export * from './types.gen';
+```
+
+---
+
+## 4. zod / msw 同時出力
+
+### orval
+
+- `react-query + msw`: 生成成功（`generated-rich/orval/client.ts` + `generated-rich/orval/client.msw.ts`）
+- `zod + msw`: コマンド自体は通るが、今回出力は型不整合あり
+  - 対象: `generated-rich/orval-zod/client.ts`
+  - `tsc --noEmit` で `Cannot find name 'Cat'` などを確認
+
+### @hey-api/openapi-ts
+
+- `@tanstack/react-query + zod` 同時生成は成功
+  - `generated-rich/heyapi/@tanstack/react-query.gen.ts`
+  - `generated-rich/heyapi/zod.gen.ts`
+- `msw` はREADME上で Planned Plugins 側
+
+### @openapi-qraft/cli
+
+- pluginは `tanstack-query-react` / `openapi-typescript`
+- `--plugin zod` は失敗
+```text
+Error: Unknown plugin: 'zod'
+```
+
+### @7nohe/openapi-react-query-codegen
+
+- zod/msw同時生成の導線はREADME/CLI上で確認できず
+- そもそも今回は生成完走できず
+
+---
+
+## 5. JSDoc（エディタホバー）比較
+
+前提:
+- TypeScript系エディタ（VS Code等）では、エクスポートされたシンボルにJSDocが付いていれば、ホバーで説明が出る
+
+**orval**（`generated-rich/orval/client.ts`）
+```ts
+/**
+ * @summary List animals
+ */
+export const listAnimals = async (...) => { ... }
+```
+
+**@hey-api/openapi-ts**（`generated-rich/heyapi/sdk.gen.ts`）
+```ts
+/**
+ * List animals
+ */
+export const listAnimals = <ThrowOnError extends boolean = false>(...) => { ... };
+```
+
+**@openapi-qraft/cli**（`generated-rich/qraft/services/AnimalsService.ts`）
+```ts
+/**
+ * Performs asynchronous data fetching, manages loading states and error handling.
+ *
+ * @summary List animals
+ * @see {@link https://openapi-qraft.github.io/openapi-qraft/docs/hooks/useQuery|`useQuery(...)` documentation}
+ */
+useQuery<TData = ListAnimalsData>(...): UseQueryResult<...>;
+```
+
+**@7nohe/openapi-react-query-codegen**（`generated-rich/7nohe/requests/services.gen.ts`）
+```ts
+/**
+ * List animals
+ */
+export const listAnimals = <ThrowOnError extends boolean = false>(...) => { ... };
+```
+
+評価:
+- 4ライブラリともJSDoc自体は生成
+- 情報量はQraftが最も厚い（`@see` と例示）
+
+---
+
+## 6. よく使う10機能の実測比較（`openapi.edge.yaml`）
+
+評価対象（使用頻度が高い順）:
+1. `enum`
+2. `allOf`
+3. `anyOf`
+4. `format` (`uuid`/`date-time`/`email`/`binary`)
+5. `readOnly` / `writeOnly`
+6. `default` / `example`
+7. `deprecated`
+8. `securitySchemes` + `security`
+9. `multipart/form-data` + `binary`
+10. response `headers` + `text/plain`
+
+判定凡例:
+- `OK`: 期待どおり反映
+- `PARTIAL`: 一部反映（情報欠落/弱い）
+- `NG`: 反映されず
+- `N/A`: 生成失敗のため厳密評価不可
+
+| # | 機能 | orval | hey-api/openapi-ts | openapi-qraft | 7nohe |
+|---:|---|---|---|---|---|
+| 1 | `enum` | OK | OK | OK | OK* |
+| 2 | `allOf` | OK | OK | OK | OK* |
+| 3 | `anyOf` | OK | OK | OK | OK* |
+| 4 | `format` | PARTIAL | PARTIAL | OK | PARTIAL* |
+| 5 | `readOnly` / `writeOnly` | PARTIAL | PARTIAL | PARTIAL | PARTIAL* |
+| 6 | `default` / `example` | NG | PARTIAL | OK | OK* |
+| 7 | `deprecated` | OK | OK | OK | OK* |
+| 8 | `securitySchemes` + `security` | NG | OK | OK | N/A |
+| 9 | `multipart/form-data` + `binary` | OK | NG | OK | N/A |
+| 10 | response `headers` + `text/plain` | PARTIAL | PARTIAL | OK | PARTIAL* |
+
+注記:
+- `*` は 7nohe の「途中生成されたファイル」ベースの判定
+
+### 10機能のコード根拠（要点）
+
+**8) securitySchemes + security**
+
+`@hey-api/openapi-ts`（`generated-edge/heyapi/sdk.gen.ts`）
+```ts
+export const searchUsers = <ThrowOnError extends boolean = false>(...) =>
+  (options?.client ?? client).get<...>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/users',
+    ...options
+  });
+```
+
+`@openapi-qraft/cli`（`generated-edge/qraft/services/UsersService.ts`）
+```ts
+security: [
+  "bearerAuth"
+]
+```
+
+**9) multipart/form-data + binary**
+
+`orval`（`generated-edge/orval/client.ts`）
+```ts
+export type CreateUserWithFormDataBodyTwo = {
+  email: string;
+  password: string;
+  avatar?: Blob;
+};
+```
+
+`@openapi-qraft/cli`（`generated-edge/qraft/schema.ts`）
+```ts
+"multipart/form-data": {
+  email: string;
+  password: string;
+  avatar?: Blob;
+};
+```
+
+`@hey-api/openapi-ts`（`generated-edge/heyapi/types.gen.ts`）
+```ts
+export type CreateUserData = {
+  body: CreateUserInputWritable;
+  path?: never;
+  query?: never;
+  url: '/users';
+};
+```
+- 今回条件では JSON body のみで、multipart分岐は反映されず
+
+**10) response headers + text/plain**
+
+`@openapi-qraft/cli`（`generated-edge/qraft/schema.ts`）
+```ts
+200: {
+  headers: {
+    "X-Next-Cursor"?: string;
+    [name: string]: unknown;
+  };
+  content: {
+    "application/json": ...
+  };
+};
+...
+"text/plain": string;
+```
+
+`orval`（`generated-edge/orval/client.ts`）
+```ts
+export type searchUsersResponseSuccess = (searchUsersResponse200) & {
+  headers: Headers;
+};
+```
+- 汎用 `Headers` は持つが、`X-Next-Cursor` 個別型は出ない
+
+### 実務上の読み方
+
+- OpenAPI機能を広く厳密に型へ落としたいなら、今回検証では Qraft が最も再現度が高い
+- SDKとしての使いやすさ・拡張性のバランスは Hey API が強い
+- Hook直生成で初速を優先するなら Orval が速い
+
+---
+
+## 7. 型チェックコスト観点（Single Sourceを強く運用した場合）
+
+ここは厳密ベンチマークではなく、今回生成物の構造から見た実務判断。
+
+前提:
+- OpenAPIを唯一のソースに寄せるほど、生成型の依存グラフが太くなりやすい
+- union/intersection/utility型の連鎖が増えると `tsc` の再評価コストが上がる
+
+ライブラリ差（今回の生成構造ベース）:
+
+- `orval`
+  - `react-query` 出力は hook まで含めた密な単位になりやすい
+  - 単一ファイル運用だと変更波及が大きくなりやすい
+  - `split` モードで分割して使えば緩和可能
+  - 生成例（`generated-rich/orval/client.ts`, 557行）:
+```ts
+import { useMutation, useQuery } from '@tanstack/react-query';
+...
+export const listAnimals = async (...) => { ... }
+export const useListAnimals = (...) => { ... }
+...
+export const useCreateAnimal = (...) => { ... }
+```
+
+- `@hey-api/openapi-ts`
+  - `types` / `sdk` / `@tanstack` / `zod` に責務分割されるため、型依存の境界を作りやすい
+  - 再生成前提の設計にしやすく、長期では型チェック負荷を管理しやすい
+  - 生成例（分割）:
+```ts
+// generated-rich/heyapi/index.ts
+export { ... } from './sdk.gen';
+export type { ... } from './types.gen';
+```
+```ts
+// generated-rich/heyapi/@tanstack/react-query.gen.ts (127行)
+import { createAnimal, ... } from '../sdk.gen';
+import type { CreateAnimalData, ... } from '../types.gen';
+export const createAnimalMutation = (...): UseMutationOptions<...> => { ... };
+```
+
+- `@openapi-qraft/cli`
+  - OpenAPI反映度が高く、サービスAPIも厚い分、型情報量は多い
+  - 機能面の恩恵は大きいが、プロジェクト規模によっては型チェック時間増の可能性がある
+  - サービス単位 import を徹底し、再export集中を避ける運用が重要
+  - 生成例（`generated-edge/qraft/services/UsersService.ts`）:
+```ts
+export const searchUsers = {
+  schema: { method: "get", url: "/users", security: ["bearerAuth"] }
+} as { ... };
+...
+type CreateUserBody =
+  paths["/users"]["post"]["requestBody"]["content"]["application/json"] |
+  paths["/users"]["post"]["requestBody"]["content"]["multipart/form-data"] |
+  FormData;
+```
+
+- `@7nohe/openapi-react-query-codegen`
+  - 今回は生成完走できず、型チェックコストの継続評価は困難
+
+実務向けの対策:
+- 生成物は直接編集せず、アプリ側に薄いラッパー層を置く
+- 巨大barrelを避け、機能単位 import を徹底する
+- CIの厳密チェックと、開発時の増分チェックを分離する
+- OpenAPI変更頻度が高い場合は、生成対象をAPI単位で分割する
+
+---
+
+## 8. 採用ガイド
+
+- すぐに hook 直生成したい: `orval`
+- SDK層と型層を分けて大規模運用したい: `@hey-api/openapi-ts`
+- OpenAPI機能の反映幅とTanStack統合を重視: `@openapi-qraft/cli`
+- `@7nohe/openapi-react-query-codegen`: Node/spec差で再現試験してから限定採用
+
+---
+
+## 9. 参考リンク
+
+- Hey API OpenAPI TS: https://github.com/hey-api/openapi-ts
+- Orval: https://github.com/orval-labs/orval
+- OpenAPI React Query Codegen: https://github.com/7nohe/openapi-react-query-codegen
+- OpenAPI Qraft CLI: https://github.com/OpenAPI-Qraft/openapi-qraft
