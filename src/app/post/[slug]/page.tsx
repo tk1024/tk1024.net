@@ -103,6 +103,13 @@ export default function Page({
           </h1>
           <div className="my-1 text-gray-600 text-sm">
             Published {frontMatter.date}
+            {frontMatter.author && (
+              <span>
+                {" · by "}
+                {frontMatter.author}
+                {frontMatter.isAI && " 🤖"}
+              </span>
+            )}
           </div>
           <div className="my-4">
             <BlogTags tags={frontMatter.tags} />
