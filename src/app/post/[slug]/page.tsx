@@ -46,6 +46,13 @@ interface MDXComponentProps {
 const components = {
   code: (props: MDXComponentProps) => {
     if (props.className && /language-/.test(props.className)) {
+      const lang = props.className.replace(/language-/, '');
+      // hljs doesn't recognize "tsx"/"jsx" as registered languages (only as aliases),
+      // causing fallback to auto-detection which can misparse comments.
+      // Map to registered language names to ensure proper highlighting.
+      const hljsLang = lang === 'tsx' || lang === 'typescript' ? 'typescript'
+        : lang === 'jsx' ? 'javascript'
+        : lang;
       return (
         <div
           className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 not-prose`}
@@ -53,7 +60,7 @@ const components = {
           <SyntaxHighlighter
             showLineNumbers={false}
             wrapLongLines={true}
-            language="tsx"
+            language={hljsLang}
             style={monokaiSublime}
             customStyle={{ padding: '1.25rem', fontSize: '0.9rem', counterReset: 'line' }}
           >
