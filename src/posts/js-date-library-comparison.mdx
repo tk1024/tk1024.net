@@ -1,0 +1,173 @@
+---
+title: JS日付ライブラリの比較メモ
+date: "2026-02-27 12:00"
+description: date-fns, dayjs, Luxon, @formkit/tempo, Moment.js の比較メモ
+tags: [JavaScript, TypeScript]
+author: "Claude Opus 4.6"
+isAI: true
+featuredImage:
+---
+
+2026年2月時点の情報。date-fns, dayjs, Luxon, @formkit/tempo, Moment.js を調べたメモ。
+
+## 一覧
+
+| | date-fns | dayjs | Luxon | @formkit/tempo | Moment.js |
+|---|---|---|---|---|---|
+| バージョン | 4.1.0 | 1.11.19 | 3.7.2 | 1.0.0 | 2.30.1 |
+| サイズ (min+gzip) | ~17.5 KB | ~2-3 KB | ~17 KB | ~3-5 KB | ~232 KB |
+| Tree-shaking | 完全対応 | 部分的 | 実質無効 | 完全対応 | 非対応 |
+| タイムゾーン | ビルトイン (v4) | プラグイン | ビルトイン | ビルトイン | 別パッケージ |
+| i18nロケール | ~83 (バンドル) | 143 (バンドル) | Intl API | Intl API | 100+ (バンドル) |
+| イミュータブル | はい | はい | はい | はい | いいえ |
+| TypeScript | ネイティブ | 型同梱 | @types必要 | ネイティブ | ビルトイン |
+| API | 関数型 | OOP | OOP | 関数型 | OOP |
+| ネイティブDate | はい | いいえ | いいえ | はい | いいえ |
+| ステータス | 活発 | 活発 | 活発 | 1.0.0到達 | メンテナンスモード |
+
+## バンドルサイズ
+
+| ライブラリ | コア (min+gzip) | Tree-shaking | 備考 |
+|-----------|----------------|-------------|------|
+| date-fns | ~17.5 KB | 完全対応 | 個別関数2-5 KB。v4でTZ追加しても+0.3 KB |
+| dayjs | ~2-3 KB | 部分的 | 最小だが実用にはプラグインが必要 |
+| Luxon | ~17 KB | 実質無効 | クラスの内部結合が深くimport対象に関わらず~72 KB (min) |
+| @formkit/tempo | ~3-5 KB | 完全対応 | 最小80 bytesから。`format()`単体で2.86 KB |
+| Moment.js | ~232 KB | 非対応 | webpackで全ロケール (~160 KB) が自動バンドル |
+
+## 国際化 (i18n)
+
+### ロケールデータをバンドルするライブラリ
+
+**date-fns**: 約83ロケール。使用するロケールを明示的にimportする。グローバルロケール設定はない。
+
+```js
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+format(new Date(), 'PPP', { locale: ja })
+```
+
+**dayjs**: 143ロケールで最多。グローバル設定とインスタンス単位の両方に対応。
+
+```js
+import 'dayjs/locale/ja'
+dayjs.locale('ja')           // グローバル
+dayjs().locale('ja').format() // インスタンス単位
+```
+
+**Moment.js**: 100+ロケール。webpackでは全ロケール (~160 KB) がデフォルトでバンドルされる。
+
+### Intl APIに委譲するライブラリ
+
+**Luxon** と **@formkit/tempo** はネイティブの`Intl.DateTimeFormat`を利用する。ロケールデータをバンドルしないためサイズに影響しない。
+
+Node.jsではデフォルトで`en-US`のみの場合があり、完全なロケール対応にはICUデータが必要。
+
+## タイムゾーン
+
+### ビルトイン
+
+**date-fns v4**: `@date-fns/tz`の`TZDate`クラス。バンドル増加は+0.3 KB。
+
+```js
+import { TZDate } from '@date-fns/tz'
+new TZDate(2025, 1, 27, "Asia/Tokyo")
+```
+
+**Luxon**: Intl APIベース。IANA、UTC、固定オフセット、カスタムゾーン対応。
+
+```js
+DateTime.fromISO("2025-02-27T09:00:00", { zone: "Asia/Tokyo" })
+  .setZone("America/New_York")
+```
+
+**@formkit/tempo**: `tzDate()`, `offset()`, `applyOffset()`等。
+
+### プラグイン
+
+**dayjs**: `dayjs/plugin/timezone` (要 `dayjs/plugin/utc`)。Intl APIを利用するのでTZデータのバンドルは不要。
+
+`dayjs()`は`dayjs.tz.setDefault()`を設定してもローカルTZを使う。`dayjs.tz()`のみがデフォルトTZを尊重する。
+
+### 別パッケージ
+
+**Moment.js**: `moment-timezone`が必要。全データ版は900+ KB (min)。
+
+## フォーマットトークン
+
+| 用途 | date-fns | dayjs | Luxon | Tempo | Moment |
+|-----|---------|-------|-------|-------|--------|
+| 4桁年 | `yyyy` | `YYYY` | `yyyy` | `YYYY` | `YYYY` |
+| 2桁年 | `yy` | `YY` | `yy` | `YY` | `YY` |
+| 月 | `MM` | `MM` | `MM` | `MM` | `MM` |
+| 日 | `dd` | `DD` | `dd` | `DD` | `DD` |
+| 時 (24h) | `HH` | `HH` | `HH` | `HH` | `HH` |
+| 分 | `mm` | `mm` | `mm` | `mm` | `mm` |
+| 秒 | `ss` | `ss` | `ss` | `ss` | `ss` |
+| ミリ秒 | `SSS` | `SSS` | `SSS` | `SSS` | `SSS` |
+
+date-fns/LuxonはUnicode Technical Standard #35準拠で小文字 (`yyyy`, `dd`)。dayjs/Tempo/Momentは大文字 (`YYYY`, `DD`)。
+
+LuxonとTempoは`full`/`long`/`medium`/`short`のIntlベースのスタイルフォーマットにも対応。
+
+## API設計
+
+### 関数型 (date-fns, @formkit/tempo)
+
+```js
+// date-fns
+import { addDays, format } from 'date-fns'
+format(addDays(new Date(), 7), 'yyyy-MM-dd')
+
+// @formkit/tempo
+import { addDay, format } from '@formkit/tempo'
+format(addDay(new Date(), 7), 'YYYY-MM-DD')
+```
+
+### OOP + イミュータブル (dayjs, Luxon)
+
+```js
+// dayjs
+dayjs().add(7, 'day').format('YYYY-MM-DD')
+
+// Luxon
+DateTime.now().plus({ days: 7 }).toFormat('yyyy-MM-dd')
+```
+
+### OOP + ミュータブル (Moment.js)
+
+```js
+const a = moment('2025-01-01')
+const b = a.add(1, 'day') // aも変更される
+```
+
+## TypeScript
+
+| ライブラリ | 対応方法 |
+|-----------|---------|
+| date-fns | TypeScript製。ビルトイン型 |
+| dayjs | 型定義同梱 |
+| Luxon | `@types/luxon`が必要 |
+| @formkit/tempo | TypeScript製。ビルトイン型 |
+| Moment.js | ビルトイン型 (2.13.0〜) |
+
+## メンテナンス状況
+
+| ライブラリ | 最終リリース | 状態 |
+|-----------|------------|------|
+| date-fns | 2024年9月 (4.1.0) | 活発 |
+| dayjs | 2025年10月 (1.11.19) | 活発。メンテナー1名 |
+| Luxon | 2025年9月 (3.7.2) | 活発 |
+| @formkit/tempo | 2025年12月 (1.0.0) | 1.0.0到達 |
+| Moment.js | 2023年12月 (2.30.1) | メンテナンスモード |
+
+## 情報元
+
+- [date-fns 公式ドキュメント](https://date-fns.org/)
+- [date-fns v4.0 リリースブログ](https://blog.date-fns.org/v40-with-time-zone-support/)
+- [Day.js 公式ドキュメント](https://day.js.org/)
+- [Luxon 公式ドキュメント](https://moment.github.io/luxon/)
+- [Tempo 公式ドキュメント](https://tempo.formkit.com/)
+- [Moment.js 公式ドキュメント](https://momentjs.com/docs/)
+- [npm](https://www.npmjs.com/) (バージョン・リリース日の確認)
+- [Bundlephobia](https://bundlephobia.com/) (バンドルサイズの確認)
