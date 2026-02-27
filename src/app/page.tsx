@@ -18,9 +18,18 @@ export default function Home() {
           className="block py-4"
         >
           <h2 className="text-2xl">{post.meta.title}</h2>
-          <time className="text-sm text-gray-600" dateTime={post.meta.date}>
-            {post.meta.date}
-          </time>
+          <div className="text-sm text-gray-600">
+            <time dateTime={post.meta.date}>
+              {post.meta.date}
+            </time>
+            {post.meta.author && (
+              <span>
+                {" · "}
+                {post.meta.author}
+                {post.meta.isAI && " (AI)"}
+              </span>
+            )}
+          </div>
         </Link>
       ))}
     </article>
