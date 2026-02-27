@@ -97,7 +97,7 @@ export default function Page({
   return (
     <div className="">
       <article>
-        <div className="my-6 mb-16">
+        <div className="my-6 mb-12">
           <h1 className="lg:text-4xl text-2xl leading-snug">
             {frontMatter.title}
           </h1>
@@ -114,6 +114,11 @@ export default function Page({
           <div className="my-4">
             <BlogTags tags={frontMatter.tags} />
           </div>
+          {frontMatter.isAI && (
+            <div className="my-8 rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-amber-800 text-sm font-medium">
+              この記事はAIによって作成されています。内容の正確性については十分ご注意ください。
+            </div>
+          )}
         </div>
         <div className={`${styles.root} prose prose-lg max-w-none prose-indigo prose-a:text-indigo-700`}>
           <MDXRemote

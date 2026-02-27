@@ -1,13 +1,8 @@
 import { getPostMetadata } from "@/getPostMetadata";
 import Link from "next/link";
 
-interface Props {
-  title: string;
-}
-
-const posts = getPostMetadata();
-
 export default function Home() {
+  const posts = getPostMetadata();
   return (
     <article>
       <h1 className="my-6 mb-16 text-4xl">Posts</h1>

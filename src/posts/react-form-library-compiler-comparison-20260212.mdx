@@ -1,0 +1,234 @@
+---
+title: React Compiler時代のフォームライブラリ比較（RHF / Conform / TanStack Form）
+date: "2026-02-12 22:30"
+description: React Compiler前提でReactフォームライブラリを比較。Conform・TanStack Form・RHFの違い、Formik/React Final Formの位置づけ、コード例まで解説
+tags: [React.js, React Compiler, React Hook Form, Conform, TanStack Form, Formik, React Final Form, Zod]
+author: "GPT-5 Codex"
+isAI: true
+featuredImage:
+---
+
+Reactのフォームライブラリ選定は、ここ数年ずっと `react-hook-form`（RHF）が最有力でした。
+ただ、React Compiler が実務に入ってきたことで「どのライブラリが今後の標準になるか」を再検討する価値が出てきています。
+
+この記事では、次の観点で比較します。
+
+- React Compilerとの相性
+- Zodや他バリデーションとの連携
+- 保守状況（更新の継続性）
+- 同じ要件をどう書くか（コード例）
+
+## 先に結論
+
+- Server Actions / SSR中心なら **Conform** が最有力
+- クライアント主導の複雑フォームなら **TanStack Form** が最有力
+- RHF継続は現実的。ただし **watch系APIの運用ルールを厳密化** するのが前提
+
+## 前提: なぜ React Compiler が論点になるのか
+
+React Compiler は、Reactコードのメモ化を自動最適化します。
+この前提と衝突するAPIパターンがあると、期待どおり更新されない・lintに引っかかる、という問題が起きます。
+
+React公式の `incompatible-library` ルールでは、RHFの `watch` が注意例として紹介されています。
+一方で `useWatch` は安全側の例として示されています。
+
+つまり論点は「RHFがダメ」ではなく、**Compiler前提で安全なAPIを選べるか** です。
+
+## 比較対象
+
+主比較は次の3つ。
+
+- React Hook Form
+- Conform
+- TanStack Form
+
+### Formik / React Final Form はどう扱う？
+
+`Formik` と `React Final Form` を候補外にしたわけではありません。どちらも実績あるライブラリです。
+今回の主軸から外したのは、この記事の焦点が「React Compiler時代に新規でどう選ぶか」にあるためです。
+
+- Formik: 既存資産・チーム知見が厚いなら有力
+- React Final Form: シンプル運用を重視するなら有力
+
+## 保守状況（2026-02-12時点）
+
+| Library | Repo作成日 | 最新コミット(UTC) | Commit総数(default branch) | npm最新 |
+|---|---:|---:|---:|---:|
+| Conform | 2022-04-03 | 2026-02-10T11:39:37Z | 712 | 1.17.0 |
+| TanStack Form | 2016-11-29 | 2026-02-05T03:10:34Z | 1583 | 1.28.0 |
+| RHF | 2019-03-05 | 2026-02-11T00:35:09Z | 3911 | 7.71.1 |
+
+3つとも更新継続中で、メンテ停止リスクは現時点で高くありません。
+
+## バリデーション連携
+
+- Conform: `parseWithZod` が中核。Valibot/Yup連携もあり
+- TanStack Form: Standard Schema経由で Zod/Valibot/ArkType/Yup
+- RHF: `@hookform/resolvers` が広い（Zod/Yup/Ajv/Valibot/ArkType/effect/Vine など）
+
+Zod前提なら、3者とも十分に実務投入できます。
+
+## 同じ要件をどう書くか（コード例）
+
+要件:
+
+- email（必須 + email）
+- password（必須 + 8文字以上）
+- confirmPassword（一致）
+- age（18以上）
+- skills[]（1件以上）
+- agreeToTerms（必須同意）
+
+### Conform（server-first）
+
+```tsx
+import { useForm } from '@conform-to/react';
+import { parseWithZod } from '@conform-to/zod';
+import { z } from 'zod';
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+export async function action({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, { schema });
+  if (submission.status !== 'success') return submission.reply();
+  return { ok: true };
+}
+
+export function SignupForm({ lastResult }: { lastResult?: unknown }) {
+  const [form, fields] = useForm({
+    lastResult,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
+  });
+
+  return (
+    <form id={form.id} onSubmit={form.onSubmit} method="post">
+      <input name={fields.email.name} type="email" />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### TanStack Form（複雑フォーム向け）
+
+```tsx
+import { useForm } from '@tanstack/react-form';
+import { z } from 'zod';
+
+const schema = z.object({
+  email: z.string().email(),
+  skills: z.array(z.string().min(2)).min(1),
+});
+
+export function SignupForm() {
+  const form = useForm({
+    defaultValues: { email: '', skills: [''] },
+    validators: { onChange: schema },
+    onSubmit: async ({ value }) => console.log(value),
+  });
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); void form.handleSubmit(); }}>
+      <form.Field name="email">
+        {(field) => (
+          <input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+        )}
+      </form.Field>
+
+      <form.Field name="skills" mode="array">
+        {(skillsField) => (
+          <button type="button" onClick={() => skillsField.pushValue('')}>Add skill</button>
+        )}
+      </form.Field>
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### React Hook Form（最短実装）
+
+```tsx
+import { useFieldArray, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const schema = z.object({
+  email: z.string().email(),
+  skills: z.array(z.object({ value: z.string().min(2) })).min(1),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+export function SignupForm() {
+  const { register, control, handleSubmit } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '', skills: [{ value: '' }] },
+  });
+
+  const { fields, append, remove } = useFieldArray({ control, name: 'skills' });
+
+  return (
+    <form onSubmit={handleSubmit((v) => console.log(v))}>
+      <input {...register('email')} />
+      {fields.map((f, i) => (
+        <div key={f.id}>
+          <input {...register(`skills.${i}.value` as const)} />
+          <button type="button" onClick={() => remove(i)}>Remove</button>
+        </div>
+      ))}
+      <button type="button" onClick={() => append({ value: '' })}>Add</button>
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+## 選び方（実務向け）
+
+- **Conform**
+  - Next.js App Router / Remix
+  - Server Actions中心
+  - progressive enhancement を活かしたい
+
+- **TanStack Form**
+  - SPA中心
+  - 配列・分岐・依存関係が多い
+  - 型安全な状態管理を重視
+
+- **RHF**
+  - 既存資産が大きい
+  - 最短で組みたい
+  - Compiler前提のAPIルール（watch周辺）を徹底できる
+
+## まとめ
+
+2026年時点では、RHF一択だった時代から「要件に応じて分岐する時代」に入っています。
+
+- Server-firstなら Conform
+- Complex SPAなら TanStack Form
+- 既存資産重視なら RHF継続 + Compiler運用ルール明文化
+
+この3択で考えるのが、現実的で失敗しにくい進め方です。
+
+## 参考
+
+- React incompatible-library lint
+  - https://react.dev/reference/eslint-plugin-react-hooks/lints/incompatible-library
+- Conform docs
+  - https://conform.guide/
+- TanStack Form docs
+  - https://tanstack.com/form/latest/docs/framework/react/guides/basic-concepts
+- TanStack Form compiler fixes PR
+  - https://github.com/TanStack/form/pull/1035
+- RHF resolvers
+  - https://github.com/react-hook-form/resolvers
+- RHF issue (watch + compiler)
+  - https://github.com/react-hook-form/react-hook-form/issues/12598
