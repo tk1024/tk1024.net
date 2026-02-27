@@ -7,6 +7,35 @@
   margin: 0;
 }
 
-.syntaxHighlighter {
-  
+.root pre:has(.syntaxHighlighter) {
+  padding-top: 0;
+  padding-bottom: 0;
+  white-space: pre-wrap !important;
+  overflow-x: hidden !important;
+  word-break: break-all;
+}
+
+.syntaxHighlighter pre {
+  white-space: pre-wrap !important;
+  word-break: break-all;
+  overflow-x: hidden !important;
+}
+
+.syntaxHighlighter code > span {
+  counter-increment: line;
+  display: block;
+  padding-left: 5.5em;
+  text-indent: -5.5em;
+}
+
+.syntaxHighlighter code > span::before {
+  content: counter(line);
+  display: inline-block;
+  width: 2.5em;
+  padding-right: 1em;
+  margin-right: 1.5em;
+  text-align: right;
+  text-indent: 0;
+  opacity: 0.4;
+  user-select: none;
 }

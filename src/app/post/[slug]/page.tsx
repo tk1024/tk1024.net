@@ -8,6 +8,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { monokaiSublime } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import styles from "./style.module.css";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed/inedx";
+import remarkGfm from "remark-gfm";
 
 import type { Metadata } from 'next';
 import { use } from 'react';
@@ -43,37 +44,26 @@ interface MDXComponentProps {
 }
 
 const components = {
-  h2: (props: MDXComponentProps) => (
-    <h2 className="lg:text-3xl text-2xl mt-16 max-w-3xl my-4 underline underline-offset-8" {...props} />
-  ),
-  h3: (props: MDXComponentProps) => (
-    <h3 className="lg:text-2xl text-xl mt-8 max-w-3xl my-4" {...props} />
-  ),
-  a: (props: MDXComponentProps & { href?: string }) => <a className="text-indigo-700 underline" {...props} />,
-  img: (props: MDXComponentProps & { src?: string; alt?: string }) => <img className="w-full" {...props} />,
-  blockquote: (props: MDXComponentProps) => {
-    return (
-      <blockquote className="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 max-w-3xl">
-        {props.children}
-      </blockquote>
-    );
-  },
-  ul: (props: MDXComponentProps) => {
-    return <ul className="list-disc list-inside my-4" {...props} />;
-  },
-  li: (props: MDXComponentProps) => {
-    return <li className="my-2" {...props} />;
-  },
-  p: (props: MDXComponentProps) => {
-    return <p className={`my-8 max-w-3xl leading-8`} {...props} />;
-  },
   code: (props: MDXComponentProps) => {
     if (props.className && /language-/.test(props.className)) {
+      const lang = props.className.replace(/language-/, '');
+      // hljs doesn't recognize "tsx"/"jsx" as registered languages (only as aliases),
+      // causing fallback to auto-detection which can misparse comments.
+      // Map to registered language names to ensure proper highlighting.
+      const hljsLang = lang === 'tsx' || lang === 'typescript' ? 'typescript'
+        : lang === 'jsx' ? 'javascript'
+        : lang;
       return (
         <div
-          className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 overflow-x-auto`}
+          className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 not-prose`}
         >
-          <SyntaxHighlighter showLineNumbers={true} language="tsx" style={monokaiSublime}>
+          <SyntaxHighlighter
+            showLineNumbers={false}
+            wrapLongLines={true}
+            language={hljsLang}
+            style={monokaiSublime}
+            customStyle={{ padding: '1.25rem', fontSize: '0.9rem', counterReset: 'line' }}
+          >
             {(props.children?.toString() || '').replace(/\n+$/, "")}
           </SyntaxHighlighter>
         </div>
@@ -87,6 +77,11 @@ const components = {
       />
     );
   },
+  table: (props: MDXComponentProps) => (
+    <div className="overflow-x-auto my-8">
+      <table className="min-w-full" {...props} />
+    </div>
+  ),
   SpeakerdeckEmbed: SpeakerdeckEmbed,
   YouTubeEmbed: YouTubeEmbed,
 };
@@ -113,8 +108,16 @@ export default function Page({
             <BlogTags tags={frontMatter.tags} />
           </div>
         </div>
-        <div className={styles.root}>
-          <MDXRemote source={content} components={components} />
+        <div className={`${styles.root} prose prose-lg max-w-none prose-indigo prose-a:text-indigo-700`}>
+          <MDXRemote
+            source={content}
+            components={components}
+            options={{
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+              },
+            }}
+          />
         </div>
       </article>
     </div>
