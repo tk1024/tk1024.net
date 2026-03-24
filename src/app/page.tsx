@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { getPostMetadata } from "@/getPostMetadata";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "TypeScript・React・Next.js の技術ブログ",
+  description:
+    "TypeScript、React、Next.js を中心に、フロントエンド開発の実践知、比較メモ、調査結果をまとめています。",
+};
 
 export default function Home() {
   const posts = getPostMetadata();
