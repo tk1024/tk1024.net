@@ -4,11 +4,16 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Analytics } from "@vercel/analytics/react";
 import { siteUrl } from "@/site";
+import { siteMetadata } from "@/seo";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "tk1024.net",
+  title: {
+    default: siteMetadata.siteName,
+    template: `%s | ${siteMetadata.siteName}`,
+  },
+  description: siteMetadata.defaultDescription,
   metadataBase: new URL(siteUrl),
 };
 

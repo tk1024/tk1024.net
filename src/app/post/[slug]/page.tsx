@@ -2,6 +2,7 @@ import React from "react";
 import { BlogTags } from "@/components/BlogTags";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
+import { getPostDescription } from "@/seo";
 import Image from "next/image";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -25,7 +26,10 @@ export async function generateMetadata({
 
   const metadata: Metadata = {
     title: postData.frontMatter.title,
-    description: postData.frontMatter.description,
+    description: getPostDescription(
+      postData.frontMatter.description,
+      postData.content,
+    ),
   };
 
   return metadata;
