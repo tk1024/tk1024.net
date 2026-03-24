@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Crimson_Pro, Outfit, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -7,7 +7,23 @@ import { Analytics } from "@vercel/analytics/react";
 import { siteUrl } from "@/site";
 import { siteMetadata } from "@/seo";
 
-const inter = Inter({ subsets: ["latin"] });
+const crimsonPro = Crimson_Pro({
+  subsets: ["latin"],
+  variable: "--font-crimson-pro",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-jp",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -31,9 +47,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+      <body
+        className={`${crimsonPro.variable} ${outfit.variable} ${notoSansJP.variable} font-sans flex flex-col min-h-screen paper-texture`}
+      >
         <Header />
-        <main className="flex-1 w-full max-w-4xl mx-auto px-4 lg:px-10 py-8">
+        <main className="flex-1 w-full max-w-3xl mx-auto px-5 lg:px-8 py-10">
           {children}
         </main>
         <Footer />

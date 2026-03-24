@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getPostMetadata } from "@/getPostMetadata";
-import Link from "next/link";
+import { PostList } from "@/components/PostList";
 
 export const metadata: Metadata = {
   title: "TypeScript・React・Next.js の技術ブログ",
@@ -10,30 +10,21 @@ export const metadata: Metadata = {
 
 export default function Home() {
   const posts = getPostMetadata();
+
   return (
-    <article>
-      <h1 className="my-6 mb-16 text-4xl">Posts</h1>
-      {posts.map((post) => (
-        <Link
-          key={post.slug}
-          href={`/post/${post.slug}`}
-          className="block py-4"
-        >
-          <h2 className="text-2xl">{post.meta.title}</h2>
-          <div className="text-sm text-gray-600">
-            <time dateTime={post.meta.date}>
-              {post.meta.date}
-            </time>
-            {post.meta.author && (
-              <span>
-                {" · "}
-                {post.meta.author}
-                {post.meta.isAI && " (AI)"}
-              </span>
-            )}
-          </div>
-        </Link>
-      ))}
-    </article>
+    <div className="animate-fade-in">
+      {/* Hero / Introduction */}
+      <section className="mb-14">
+        <h1 className="font-serif text-4xl lg:text-5xl tracking-tight text-ink leading-tight">
+          Writing about<br />
+          <span className="text-forest">frontend craft</span>
+        </h1>
+        <p className="mt-4 text-ink-light text-base leading-relaxed max-w-lg">
+          TypeScript、React、Next.js を中心に、フロントエンド開発の実践知や比較メモをまとめています。
+        </p>
+      </section>
+
+      <PostList posts={posts} />
+    </div>
   );
 }

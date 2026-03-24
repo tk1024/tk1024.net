@@ -1,4 +1,5 @@
 import React from "react";
+import { AiBadge } from "@/components/AiBadge";
 import { BlogTags } from "@/components/BlogTags";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
@@ -6,7 +7,7 @@ import { getPostDescription } from "@/seo";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { monokaiSublime } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { githubGist } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import styles from "./style.module.css";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed/inedx";
 import remarkGfm from "remark-gfm";
@@ -82,22 +83,26 @@ const components = {
   code: (props: MDXComponentProps) => {
     if (props.className && /language-/.test(props.className)) {
       const lang = props.className.replace(/language-/, '');
-      // hljs doesn't recognize "tsx"/"jsx" as registered languages (only as aliases),
-      // causing fallback to auto-detection which can misparse comments.
-      // Map to registered language names to ensure proper highlighting.
       const hljsLang = lang === 'tsx' || lang === 'typescript' ? 'typescript'
         : lang === 'jsx' ? 'javascript'
         : lang;
       return (
         <div
-          className={`${styles.syntaxHighlighter} lg:-mx-10 -mx-4 not-prose`}
+          className={`${styles.syntaxHighlighter} lg:-mx-8 -mx-5 not-prose`}
         >
           <SyntaxHighlighter
             showLineNumbers={false}
             wrapLongLines={true}
             language={hljsLang}
-            style={monokaiSublime}
-            customStyle={{ padding: '1.25rem', fontSize: '0.9rem', counterReset: 'line' }}
+            style={githubGist}
+            customStyle={{
+              padding: '1.25rem 1.5rem',
+              fontSize: '0.875rem',
+              counterReset: 'line',
+              background: '#f4f1ec',
+              borderTop: '1px solid #e8e5e0',
+              borderBottom: '1px solid #e8e5e0',
+            }}
           >
             {(props.children?.toString() || '').replace(/\n+$/, "")}
           </SyntaxHighlighter>
@@ -107,14 +112,14 @@ const components = {
 
     return (
       <code
-        className={`inline-block text-indigo-800 rounded-md border px-1 my-0.5 border-indigo-100 bg-indigo-50`}
+        className="inline-block text-forest-dark bg-cream-200 rounded border border-cream-300 px-1.5 py-0.5 my-0.5 text-sm"
         {...props}
       />
     );
   },
   table: (props: MDXComponentProps) => (
-    <div className="overflow-x-auto my-8">
-      <table className="min-w-full" {...props} />
+    <div className="overflow-x-auto my-8 rounded-lg border border-cream-300 bg-white not-prose">
+      <table className="min-w-full table-styled" {...props} />
     </div>
   ),
   SpeakerdeckEmbed: SpeakerdeckEmbed,
@@ -148,32 +153,39 @@ export default function Page({
     : [];
 
   return (
-    <div className="">
+    <div className="animate-fade-in">
       <article>
-        <div className="my-6 mb-12">
-          <h1 className="lg:text-4xl text-2xl leading-snug">
+        {/* Article header */}
+        <header className="mb-10 pb-8 border-b border-cream-300">
+          <div className="mb-4 flex items-center gap-3">
+            <BlogTags tags={frontMatter.tags} />
+            {frontMatter.isAI && <AiBadge />}
+          </div>
+          <h1 className="font-serif text-3xl lg:text-4xl leading-snug tracking-tight text-ink">
             {frontMatter.title}
           </h1>
-          <div className="my-1 text-gray-600 text-sm">
-            Published {frontMatter.date}
+          <div className="mt-3 flex items-center gap-2 text-sm text-ink-faint">
+            <time dateTime={frontMatter.date}>{frontMatter.date}</time>
             {frontMatter.author && (
-              <span>
-                {" · by "}
-                {frontMatter.author}
-                {frontMatter.isAI && " 🤖"}
-              </span>
+              <>
+                <span className="text-cream-300">·</span>
+                <span>{frontMatter.author}</span>
+              </>
             )}
           </div>
-          <div className="my-4">
-            <BlogTags tags={frontMatter.tags} />
-          </div>
           {frontMatter.isAI && (
-            <div className="my-8 rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-amber-800 text-sm font-medium">
-              この記事はAIによって作成されています。内容の正確性については十分ご注意ください。
+            <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50/70 px-4 py-3 text-amber-800 text-sm leading-relaxed flex gap-3">
+              <span className="text-3xl leading-none flex-shrink-0 self-center">🤖</span>
+              <div>
+                <p className="font-medium">この記事はAIとの対話をAIがまとめたメモです</p>
+                <p className="mt-1 text-amber-700/80 text-xs">内容の正確性については十分ご注意ください。</p>
+              </div>
             </div>
           )}
-        </div>
-        <div className={`${styles.root} prose prose-lg max-w-none prose-indigo prose-a:text-indigo-700`}>
+        </header>
+
+        {/* Article body */}
+        <div className={`${styles.root} prose prose-lg prose-editorial max-w-none`}>
           <MDXRemote
             source={content}
             components={components}
@@ -186,16 +198,17 @@ export default function Page({
         </div>
       </article>
 
+      {/* Prev / Next navigation */}
       {(newerPost || olderPost) && (
-        <nav className="mt-12 pt-8 border-t border-gray-200">
+        <nav className="mt-14 pt-8 border-t border-cream-300">
           <div className="grid grid-cols-2 gap-4">
             {olderPost ? (
               <Link
                 href={`/post/${olderPost.slug}`}
-                className="group rounded-lg border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50 transition-colors duration-200"
+                className="group rounded-xl border border-cream-300 bg-white px-5 py-4 hover:border-forest/20 hover:shadow-sm transition-all duration-200"
               >
-                <span className="text-xs text-gray-400">← 前の記事</span>
-                <p className="text-sm text-gray-700 group-hover:text-indigo-700 mt-1 leading-snug transition-colors duration-200">
+                <span className="text-xs text-ink-faint">← 前の記事</span>
+                <p className="font-serif text-sm text-ink group-hover:text-forest mt-1.5 leading-snug transition-colors duration-200">
                   {olderPost.meta.title}
                 </p>
               </Link>
@@ -205,10 +218,10 @@ export default function Page({
             {newerPost ? (
               <Link
                 href={`/post/${newerPost.slug}`}
-                className="group rounded-lg border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50 transition-colors duration-200 text-right"
+                className="group rounded-xl border border-cream-300 bg-white px-5 py-4 hover:border-forest/20 hover:shadow-sm transition-all duration-200 text-right"
               >
-                <span className="text-xs text-gray-400">次の記事 →</span>
-                <p className="text-sm text-gray-700 group-hover:text-indigo-700 mt-1 leading-snug transition-colors duration-200">
+                <span className="text-xs text-ink-faint">次の記事 →</span>
+                <p className="font-serif text-sm text-ink group-hover:text-forest mt-1.5 leading-snug transition-colors duration-200">
                   {newerPost.meta.title}
                 </p>
               </Link>
@@ -219,20 +232,21 @@ export default function Page({
         </nav>
       )}
 
+      {/* Related posts */}
       {relatedPosts.length > 0 && (
-        <section className="mt-10 pt-8 border-t border-gray-200">
-          <h2 className="text-sm font-bold text-gray-500 mb-4">関連記事</h2>
-          <div className="space-y-2">
+        <section className="mt-10 pt-8 border-t border-cream-300">
+          <div className="editorial-divider mb-6">関連記事</div>
+          <div className="space-y-1">
             {relatedPosts.map((post) => (
               <Link
                 key={post.slug}
                 href={`/post/${post.slug}`}
-                className="group block rounded-lg border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50 transition-colors duration-200"
+                className="post-card group block py-4 px-1"
               >
-                <p className="text-sm text-gray-700 group-hover:text-indigo-700 leading-snug transition-colors duration-200">
+                <p className="font-serif text-base text-ink group-hover:text-forest leading-snug transition-colors duration-200">
                   {post.meta.title}
                 </p>
-                <time className="text-xs text-gray-400 mt-1 block" dateTime={post.meta.date}>
+                <time className="text-xs text-ink-faint mt-1 block" dateTime={post.meta.date}>
                   {post.meta.date}
                 </time>
               </Link>

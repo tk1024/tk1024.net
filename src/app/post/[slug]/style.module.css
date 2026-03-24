@@ -13,6 +13,7 @@
   white-space: pre-wrap !important;
   overflow-x: hidden !important;
   word-break: break-all;
+  background: transparent !important;
 }
 
 .syntaxHighlighter pre {
@@ -36,6 +37,7 @@
   margin-right: 1.5em;
   text-align: right;
   text-indent: 0;
-  opacity: 0.4;
+  opacity: 0.3;
+  color: #9494ad;
   user-select: none;
 }

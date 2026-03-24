@@ -28,25 +28,27 @@ const socials = [
 
 export const Header = () => {
   return (
-    <header className="bg-indigo-700 text-white">
-      <div className="max-w-4xl mx-auto px-4 lg:px-10 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full overflow-hidden w-10 h-10 flex-shrink-0">
+    <header className="border-b border-cream-300">
+      <div className="max-w-3xl mx-auto px-5 lg:px-8 py-5 flex items-center justify-between">
+        <Link href="/" className="group flex items-center gap-3">
+          <div className="rounded-full overflow-hidden w-9 h-9 flex-shrink-0 ring-2 ring-cream-300 group-hover:ring-forest/30 transition-all duration-300">
             <Image alt="" width={248} height={248} src={"/icon.jpg"} />
           </div>
-          <Link href="/" className="text-xl font-bold hover:opacity-80 transition-opacity">
-            tk1024.net
-          </Link>
-        </div>
-        <nav className="flex items-center gap-3">
+          <div>
+            <span className="font-serif text-xl text-ink tracking-tight group-hover:text-forest transition-colors duration-200">
+              tk1024.net
+            </span>
+          </div>
+        </Link>
+        <nav className="flex items-center gap-2">
           {socials.map((s) => (
             <a
               key={s.name}
               href={s.link}
               title={s.name}
-              className="w-8 h-8 bg-white rounded-full flex justify-center items-center hover:opacity-80 transition-opacity"
+              className="w-8 h-8 rounded-full flex justify-center items-center text-ink-faint hover:text-forest hover:bg-forest-pale transition-all duration-200"
             >
-              <s.icon size={"1rem"} color="rgb(67 56 202)" />
+              <s.icon size={"0.95rem"} />
             </a>
           ))}
         </nav>
