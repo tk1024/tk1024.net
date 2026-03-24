@@ -36,8 +36,10 @@ export default function RootLayout({
           <div className="lg:min-h-screen bg-indigo-700">
             <Header />
           </div>
-          <div className="col-auto lg:p-10 p-4 w-full box-border overflow-x-auto flex flex-col min-h-screen">
-            <div className="flex-1">{children}</div>
+          <div className="col-auto lg:p-10 p-4 w-full box-border overflow-x-auto">
+            {children}
+          </div>
+          <div className="lg:col-span-2">
             <Footer />
           </div>
         </div>
