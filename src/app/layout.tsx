@@ -3,11 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Analytics } from "@vercel/analytics/react";
+import { siteUrl } from "@/site";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "tk1024.net",
+  metadataBase: new URL(siteUrl),
 };
 
 export default function RootLayout({
