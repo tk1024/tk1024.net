@@ -157,7 +157,7 @@ export default function Page({
   const description = getPostDescription(frontMatter.description, content);
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in -mt-8">
       <BlogPostingJsonLd
         title={frontMatter.title}
         description={description}

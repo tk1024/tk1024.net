@@ -6,19 +6,19 @@ export function Breadcrumb({
   items: { name: string; href: string }[];
 }) {
   return (
-    <nav aria-label="パンくずリスト" className="mb-6 text-sm text-ink-faint">
-      <ol className="flex items-center gap-1.5 flex-wrap">
+    <nav aria-label="パンくずリスト" className="mb-8 text-xs text-ink-faint tracking-wide">
+      <ol className="flex items-center gap-1 flex-wrap">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={item.href} className="flex items-center gap-1.5">
+            <li key={item.href} className="flex items-center gap-1">
               {index > 0 && (
-                <span aria-hidden="true" className="text-cream-400">
-                  /
+                <span aria-hidden="true" className="text-cream-400 select-none">
+                  ›
                 </span>
               )}
               {isLast ? (
-                <span className="text-ink-light truncate max-w-[20rem]">
+                <span className="text-ink-light truncate max-w-[18rem]">
                   {item.name}
                 </span>
               ) : (
