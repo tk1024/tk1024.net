@@ -1,6 +1,8 @@
 import React from "react";
 import { AiBadge } from "@/components/AiBadge";
 import { BlogTags } from "@/components/BlogTags";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
 import { getPostDescription } from "@/seo";
@@ -152,8 +154,32 @@ export default function Page({
         .slice(0, 3)
     : [];
 
+  const description = getPostDescription(frontMatter.description, content);
+
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in -mt-8">
+      <BlogPostingJsonLd
+        title={frontMatter.title}
+        description={description}
+        date={frontMatter.date}
+        slug={resolvedParams.slug}
+        author={frontMatter.author}
+        tags={frontMatter.tags}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "ホーム", href: "/" },
+          { name: "記事一覧", href: "/post" },
+          { name: frontMatter.title, href: `/post/${resolvedParams.slug}` },
+        ]}
+      />
+      <Breadcrumb
+        items={[
+          { name: "ホーム", href: "/" },
+          { name: "記事一覧", href: "/post" },
+          { name: frontMatter.title, href: `/post/${resolvedParams.slug}` },
+        ]}
+      />
       <article>
         {/* Article header */}
         <header className="mb-10 pb-8 border-b border-cream-300">
