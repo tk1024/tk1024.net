@@ -175,8 +175,8 @@ export default function Page({
           </div>
           {frontMatter.isAI && (
             <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50/70 px-4 py-3 text-amber-800 text-sm leading-relaxed">
-              <p className="font-medium">この記事はAIとの対話をもとに作成されています</p>
-              <p className="mt-1 text-amber-700/80 text-xs">会話の覚書・共有用のメモとしてまとめたものです。内容の正確性については十分ご注意ください。</p>
+              <p className="font-medium">この記事は対話の内容のメモのためAIが作成しています</p>
+              <p className="mt-1 text-amber-700/80 text-xs">内容の正確性については十分ご注意ください。</p>
             </div>
           )}
         </header>
