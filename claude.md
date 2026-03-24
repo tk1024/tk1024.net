@@ -1,1 +1,1 @@
-agenet.md
+AGENTS.md
