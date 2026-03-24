@@ -1,4 +1,5 @@
 import React from "react";
+import { AiBadge } from "@/components/AiBadge";
 import { BlogTags } from "@/components/BlogTags";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
@@ -156,8 +157,9 @@ export default function Page({
       <article>
         {/* Article header */}
         <header className="mb-10 pb-8 border-b border-cream-300">
-          <div className="mb-4">
+          <div className="mb-4 flex items-center gap-3">
             <BlogTags tags={frontMatter.tags} />
+            {frontMatter.isAI && <AiBadge />}
           </div>
           <h1 className="font-serif text-3xl lg:text-4xl leading-snug tracking-tight text-ink">
             {frontMatter.title}
@@ -167,16 +169,14 @@ export default function Page({
             {frontMatter.author && (
               <>
                 <span className="text-cream-300">·</span>
-                <span>
-                  {frontMatter.author}
-                  {frontMatter.isAI && " 🤖"}
-                </span>
+                <span>{frontMatter.author}</span>
               </>
             )}
           </div>
           {frontMatter.isAI && (
-            <div className="mt-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800 text-sm">
-              この記事はAIによって作成されています。内容の正確性については十分ご注意ください。
+            <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50/70 px-4 py-3 text-amber-800 text-sm leading-relaxed">
+              <p className="font-medium">この記事はAIとの対話をもとに作成されています</p>
+              <p className="mt-1 text-amber-700/80 text-xs">会話の覚書・共有用のメモとしてまとめたものです。内容の正確性については十分ご注意ください。</p>
             </div>
           )}
         </header>
