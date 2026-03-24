@@ -76,6 +76,35 @@
 .stagger > *:nth-child(9) { animation-delay: 0.45s; }
 .stagger > *:nth-child(10) { animation-delay: 0.5s; }
 
+/* Styled table */
+.table-styled thead {
+  background-color: #f4f1ec;
+}
+.table-styled th {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #1a1a2e;
+  text-align: left;
+  padding: 0.65rem 1rem;
+  border-bottom: 2px solid #e8e5e0;
+  white-space: nowrap;
+}
+.table-styled td {
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  color: #1a1a2e;
+  border-bottom: 1px solid #f4f1ec;
+}
+.table-styled tbody tr:nth-child(even) {
+  background-color: #fdfcfa;
+}
+.table-styled tbody tr:hover {
+  background-color: #f4f1ec;
+}
+.table-styled tbody tr:last-child td {
+  border-bottom: none;
+}
+
 /* Green accent bar for featured elements */
 .accent-bar {
   position: relative;

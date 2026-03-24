@@ -118,8 +118,8 @@ const components = {
     );
   },
   table: (props: MDXComponentProps) => (
-    <div className="overflow-x-auto my-8 rounded-lg border border-cream-300">
-      <table className="min-w-full" {...props} />
+    <div className="overflow-x-auto my-8 rounded-lg border border-cream-300 bg-white not-prose">
+      <table className="min-w-full table-styled" {...props} />
     </div>
   ),
   SpeakerdeckEmbed: SpeakerdeckEmbed,
