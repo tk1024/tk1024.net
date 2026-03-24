@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getPostMetadata } from "@/getPostMetadata";
 import { PostList } from "@/components/PostList";
+import { WebSiteJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "TypeScript・React・Next.js の技術ブログ",
@@ -13,6 +14,7 @@ export default function Home() {
 
   return (
     <div className="animate-fade-in">
+      <WebSiteJsonLd />
       {/* Hero / Introduction */}
       <section className="mb-14">
         <h1 className="font-serif text-4xl lg:text-5xl tracking-tight text-ink leading-tight">
