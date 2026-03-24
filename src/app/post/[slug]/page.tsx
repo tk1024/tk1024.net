@@ -13,6 +13,8 @@ import remarkGfm from "remark-gfm";
 
 import type { Metadata } from 'next';
 import { use } from 'react';
+import { siteUrl } from "@/site";
+import { siteMetadata } from "@/seo";
 
 // Using temporary synchronous access mode for backward compatibility
 
@@ -23,6 +25,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const resolvedParams = await params;
   const postData = getSinglePostMetadata(resolvedParams.slug);
+  const imageUrl = new URL(
+    `/post/${resolvedParams.slug}/opengraph-image`,
+    siteUrl,
+  ).toString();
 
   const metadata: Metadata = {
     title: postData.frontMatter.title,
@@ -30,6 +36,31 @@ export async function generateMetadata({
       postData.frontMatter.description,
       postData.content,
     ),
+    openGraph: {
+      siteName: siteMetadata.siteName,
+      title: postData.frontMatter.title,
+      description: getPostDescription(
+        postData.frontMatter.description,
+        postData.content,
+      ),
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${postData.frontMatter.title} | ${siteMetadata.siteName}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: postData.frontMatter.title,
+      description: getPostDescription(
+        postData.frontMatter.description,
+        postData.content,
+      ),
+      images: [imageUrl],
+    },
   };
 
   return metadata;
