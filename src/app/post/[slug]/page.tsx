@@ -3,7 +3,7 @@ import { BlogTags } from "@/components/BlogTags";
 import { SpeakerdeckEmbed } from "@/components/SpeakerdeckEmbed/inedx";
 import { getPostMetadata, getSinglePostMetadata } from "@/getPostMetadata";
 import { getPostDescription } from "@/seo";
-import Image from "next/image";
+import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { monokaiSublime } from "react-syntax-highlighter/dist/esm/styles/hljs";
@@ -129,6 +129,24 @@ export default function Page({
   const resolvedParams = use(params);
   const { content, frontMatter } = getSinglePostMetadata(resolvedParams.slug);
 
+  const allPosts = getPostMetadata();
+  const currentIndex = allPosts.findIndex((p) => p.slug === resolvedParams.slug);
+  const newerPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+  const olderPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+
+  const currentTags: string[] = frontMatter.tags ?? [];
+  const relatedPosts = currentTags.length > 0
+    ? allPosts
+        .filter((p) => p.slug !== resolvedParams.slug)
+        .map((p) => ({
+          ...p,
+          matchCount: (p.meta.tags ?? []).filter((t: string) => currentTags.includes(t)).length,
+        }))
+        .filter((p) => p.matchCount > 0)
+        .sort((a, b) => b.matchCount - a.matchCount)
+        .slice(0, 3)
+    : [];
+
   return (
     <div className="">
       <article>
@@ -167,6 +185,61 @@ export default function Page({
           />
         </div>
       </article>
+
+      {(newerPost || olderPost) && (
+        <nav className="mt-12 pt-8 border-t border-gray-200">
+          <div className="grid grid-cols-2 gap-4">
+            {olderPost ? (
+              <Link
+                href={`/post/${olderPost.slug}`}
+                className="group rounded-lg border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50 transition-colors duration-200"
+              >
+                <span className="text-xs text-gray-400">← 前の記事</span>
+                <p className="text-sm text-gray-700 group-hover:text-indigo-700 mt-1 leading-snug transition-colors duration-200">
+                  {olderPost.meta.title}
+                </p>
+              </Link>
+            ) : (
+              <div />
+            )}
+            {newerPost ? (
+              <Link
+                href={`/post/${newerPost.slug}`}
+                className="group rounded-lg border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50 transition-colors duration-200 text-right"
+              >
+                <span className="text-xs text-gray-400">次の記事 →</span>
+                <p className="text-sm text-gray-700 group-hover:text-indigo-700 mt-1 leading-snug transition-colors duration-200">
+                  {newerPost.meta.title}
+                </p>
+              </Link>
+            ) : (
+              <div />
+            )}
+          </div>
+        </nav>
+      )}
+
+      {relatedPosts.length > 0 && (
+        <section className="mt-10 pt-8 border-t border-gray-200">
+          <h2 className="text-sm font-bold text-gray-500 mb-4">関連記事</h2>
+          <div className="space-y-2">
+            {relatedPosts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/post/${post.slug}`}
+                className="group block rounded-lg border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:bg-indigo-50 transition-colors duration-200"
+              >
+                <p className="text-sm text-gray-700 group-hover:text-indigo-700 leading-snug transition-colors duration-200">
+                  {post.meta.title}
+                </p>
+                <time className="text-xs text-gray-400 mt-1 block" dateTime={post.meta.date}>
+                  {post.meta.date}
+                </time>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
