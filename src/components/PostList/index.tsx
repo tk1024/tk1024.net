@@ -35,12 +35,9 @@ export const PostList = ({ posts }: { posts: Post[] }) => {
             className="group block bg-white rounded-xl p-6 lg:p-8 border border-cream-300 hover:border-forest/20 hover:shadow-sm transition-all duration-300"
           >
             <div className="accent-bar">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-serif text-2xl lg:text-3xl text-ink group-hover:text-forest transition-colors duration-200 leading-snug">
-                  {latestPost.meta.title}
-                </h2>
-                {latestPost.meta.isAI && <AiBadge />}
-              </div>
+              <h2 className="font-serif text-2xl lg:text-3xl text-ink group-hover:text-forest transition-colors duration-200 leading-snug">
+                {latestPost.meta.title}
+              </h2>
             </div>
             <div className="mt-3 flex items-center gap-2 text-sm text-ink-faint">
               <time dateTime={latestPost.meta.date}>{latestPost.meta.date}</time>
@@ -50,6 +47,7 @@ export const PostList = ({ posts }: { posts: Post[] }) => {
                   <span>{latestPost.meta.author}</span>
                 </>
               )}
+              {latestPost.meta.isAI && <AiBadge />}
             </div>
             {latestPost.meta.description && (
               <p className="mt-3 text-ink-light text-sm leading-relaxed line-clamp-2">
@@ -91,12 +89,9 @@ export const PostList = ({ posts }: { posts: Post[] }) => {
               href={`/post/${post.slug}`}
               className="post-card group block py-5 px-1"
             >
-              <div className="flex items-center gap-2">
-                <h2 className="font-serif text-xl text-ink group-hover:text-forest transition-colors duration-200 leading-snug">
-                  {post.meta.title}
-                </h2>
-                {post.meta.isAI && <AiBadge />}
-              </div>
+              <h2 className="font-serif text-xl text-ink group-hover:text-forest transition-colors duration-200 leading-snug">
+                {post.meta.title}
+              </h2>
               <div className="mt-1.5 flex items-center gap-2 text-sm text-ink-faint">
                 <time dateTime={post.meta.date}>{post.meta.date}</time>
                 {post.meta.author && (
@@ -105,6 +100,7 @@ export const PostList = ({ posts }: { posts: Post[] }) => {
                     <span>{post.meta.author}</span>
                   </>
                 )}
+                {post.meta.isAI && <AiBadge />}
               </div>
             </Link>
           ))}
