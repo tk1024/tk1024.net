@@ -11,6 +11,7 @@
     "prebuild": "rimraf .next"
   },
   "dependencies": {
+    "@fontsource/noto-sans-jp": "^5.2.9",
     "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^1.5.0",
     "gray-matter": "^4.0.3",
